@@ -54,7 +54,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.InputPassword.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.InputPassword.Depth = 0;
-            this.InputPassword.Font = new System.Drawing.Font("Adobe Gothic Std B", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.InputPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.InputPassword.ForeColor = System.Drawing.Color.DarkSlateBlue;
             this.InputPassword.Hint = "Password";
             this.InputPassword.Location = new System.Drawing.Point(157, 194);
@@ -66,7 +66,7 @@
             this.InputPassword.SelectionStart = 0;
             this.InputPassword.Size = new System.Drawing.Size(213, 23);
             this.InputPassword.TabIndex = 1;
-            this.InputPassword.UseSystemPasswordChar = false;
+            this.InputPassword.UseSystemPasswordChar = true;
             // 
             // InputNickname
             // 

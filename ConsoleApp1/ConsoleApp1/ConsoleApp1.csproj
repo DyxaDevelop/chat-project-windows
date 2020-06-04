@@ -5,4 +5,14 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LogInForm">
+      <HintPath>..\..\LogInForm\bin\Debug\LogInForm.exe</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

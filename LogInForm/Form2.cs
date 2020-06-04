@@ -50,22 +50,22 @@ namespace LogInForm
         private void materialRaisedButton1_Click(object sender, EventArgs e)
         {
 
+            Guid guid = Guid.NewGuid();
+            string ID = guid.ToString();
+
+            string userID = ID;
             string userNickname = InputNickname.Text;
             string userPassword = InputPassword.Text;
 
-            if (!String.IsNullOrEmpty(userNickname) && !String.IsNullOrEmpty(userPassword)) {
 
-                var data = new Data
-                {
-                    Nickname = InputNickname.Text,
-                    Password = InputPassword.Text
-                };
+
+            if (!String.IsNullOrEmpty(userNickname) && !String.IsNullOrEmpty(userPassword)) {
 
                 Form2 currentForm = this;
 
                 var asyncClientEvent = new AsyncClientEvent { };
 
-                asyncClientEvent.StartClient(InputNickname.Text, currentForm);
+                asyncClientEvent.StartClient(userNickname, userPassword, "register", ID ,currentForm);
 
             }
 

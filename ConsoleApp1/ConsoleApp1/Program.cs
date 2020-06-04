@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 
@@ -15,6 +19,7 @@ public class StateObject
     public byte[] buffer = new byte[BufferSize];
     // Received data string.  
     public StringBuilder sb = new StringBuilder();
+
 }
 
 public class AsynchronousSocketListener
@@ -102,22 +107,31 @@ public class AsynchronousSocketListener
         int bytesRead = handler.EndReceive(ar);
 
 
-        Console.WriteLine(bytesRead);
-
-
         if (bytesRead > 0)
         {
+            Console.WriteLine("Received Data");
+
             // There  might be more data, so store the data received so far.  
             state.sb.Append(Encoding.ASCII.GetString(
                 state.buffer, 0, bytesRead));
 
-            // Check for end-of-file tag. If it is not there, read
-            // more data.  
             content = state.sb.ToString();
+            JObject json = JObject.Parse(content);
+
+            string eventNameReceived = json["eventName"].Value<string>();
+            if (eventNameReceived.Equals("Register")) {
+                Console.WriteLine("CONTAINS");
+            }
+            UserRegisterData receivedData = JsonConvert.DeserializeObject<UserRegisterData>(content);
+
+            Console.WriteLine(receivedData.userName);
+            Console.WriteLine(receivedData.userPassword);
             // All the data has been read from the
             // client. Display it on the console.  
+
             Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
             content.Length, content);
+
             // Echo the data back to the client.  
             Send(handler, content);
         }
@@ -159,4 +173,10 @@ public class AsynchronousSocketListener
         StartListening();
         return 0;
     }
+
+}
+public class UserRegisterData
+{
+    public string userName { get; set; }
+    public string userPassword { get; set; }
 }

@@ -78,7 +78,7 @@
             this.InputPassword.SelectionStart = 0;
             this.InputPassword.Size = new System.Drawing.Size(231, 23);
             this.InputPassword.TabIndex = 2;
-            this.InputPassword.UseSystemPasswordChar = false;
+            this.InputPassword.UseSystemPasswordChar = true;
             this.InputPassword.Click += new System.EventHandler(this.InputPassword_Click);
             // 
             // materialLabel2

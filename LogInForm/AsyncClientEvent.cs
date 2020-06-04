@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace LogInForm
 {
@@ -30,7 +33,7 @@ namespace LogInForm
         // The response from the remote device.  
         private static String response = String.Empty;
 
-        public void StartClient(String userID, Form2 form2)
+        public void StartClient(String userName, String userPassword, String eventName, string userID,  Form2 form2)
         {
 
             currentForm = form2;
@@ -55,7 +58,7 @@ namespace LogInForm
                 connectDone.WaitOne();
 
                 // Send test data to the remote device.  
-                Send(client, userID);
+                Send(client, userName, userPassword, userID);
                 sendDone.WaitOne();
 
                 // Receive the response from the remote device.  
@@ -163,12 +166,29 @@ namespace LogInForm
             }
         }
 
-        private static void Send(Socket client, String data)
+        private static void Send(Socket client, String userName, String userPassword, String userID)
         {
-            // Convert the string data to byte data using ASCII encoding.  
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            Console.WriteLine("ENTERED -----------------------------------");
+            // Convert the string data to byte data using ASCII encoding.
+            var data = new UserRegisterData {
+                eventName = "Register",
+                userID = userID,
+                userName = userName,
+                userPassword = userPassword
+            };
 
-            // Begin sending the data to the remote device.  
+            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+
+            byte[] byteData = Encoding.ASCII.GetBytes(json);
+
+            //UserRegisterData help = (UserRegisterData) ByteArrayToObjectTest(byteData);
+
+            //Console.WriteLine(byteData + "   BYTEDATA-----------------------------------");
+            //Console.WriteLine(help + "   HELP BLYATAAAAAAA-----------------------------------");
+            //Console.WriteLine(help.userName + "-----------------------------------");
+            //Console.WriteLine(help.userPassword + "-----------------------------------");
+
+            // Begin sending the data to the remote device. 
             client.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(SendCallback), client);
         }
@@ -193,5 +213,58 @@ namespace LogInForm
             }
         }
 
+        public static byte[] ObjectToByteArray(UserRegisterData obj)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            using (var ms = new MemoryStream())
+            {
+                bf.Serialize(ms, obj);
+                return ms.ToArray();
+            }
+        }
+
+        public static object ByteArrayToObjectTest(byte[] arrBytes)
+        {
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            MemoryStream ms = new MemoryStream(arrBytes);
+            return formatter.Deserialize(ms);
+        }
+
+
+    }
+    [Serializable]
+    public class Status
+    {
+        [NonSerialized]
+        public Socket Socket;
+        [NonSerialized]
+        public List<byte> TransmissionBuffer = new List<byte>();
+        [NonSerialized]
+        public byte[] buffer = new byte[1024];
+
+        public string msg;     //the only thing we really send.
+
+        //Usually you shouldn't but these 2 methods in your class because they don't operate specifically on this object
+        //and we would get allot of duplicate code if we would put those 2 methods in each class we would like to
+        //be able to send but to not wind up having to write a couple of utility classes (where these should reside)
+        // I let them reside here for now.
+        public byte[] Serialize()
+        {
+            BinaryFormatter bin = new BinaryFormatter();
+            MemoryStream mem = new MemoryStream();
+            bin.Serialize(mem, this);
+            return mem.GetBuffer();
+        }
+
+        public Status DeSerialize()
+        {
+            byte[] dataBuffer = TransmissionBuffer.ToArray();
+            BinaryFormatter bin = new BinaryFormatter();
+            MemoryStream mem = new MemoryStream();
+            mem.Write(dataBuffer, 0, dataBuffer.Length);
+            mem.Seek(0, 0);
+            return (Status)bin.Deserialize(mem);
+        }
     }
 }
