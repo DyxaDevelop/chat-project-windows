@@ -123,13 +123,7 @@ public class AsynchronousSocketListener
 
                 UserRegisterData receivedUserRegister = JsonConvert.DeserializeObject<UserRegisterData>(content);
 
-                Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
-                content.Length, content);
-
-
-                checkIfUserExists(receivedUserRegister);
-
-                Send(handler, content);
+                checkIfUserExists(handler, receivedUserRegister);
 
             }
         }
@@ -181,14 +175,18 @@ public class AsynchronousSocketListener
         }
     }
 
-    public static async void addUser(UserRegisterData receivedUserRegister)
+    public static async void addUser(Socket handler, UserRegisterData receivedUserRegister)
     {
             await firebaseClient.Child("Users")
                 .Child(receivedUserRegister.userName)
                 .PutAsync(receivedUserRegister);
+
+            allUsersList.Add(receivedUserRegister);
+
+            Send(handler, "User created!");
     }
 
-    public static void checkIfUserExists(UserRegisterData receivedUserRegister)
+    public static void checkIfUserExists(Socket handler, UserRegisterData receivedUserRegister)
     {
         bool userExists = false;
 
@@ -197,12 +195,14 @@ public class AsynchronousSocketListener
             if (currentUser.userName == receivedUserRegister.userName)
             {
                 userExists = true;
+
+                Send(handler, "User already exists!");
             }
         }
 
         if (!userExists)
         {
-            addUser(receivedUserRegister);
+            addUser(handler, receivedUserRegister);
         }
     }
 

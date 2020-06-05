@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MaterialSkin.Controls;
+using MaterialSkin;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,11 +12,32 @@ using System.Windows.Forms;
 
 namespace LogInForm
 {
-    public partial class ChatForm : Form
+    public partial class Messager : MaterialForm
     {
-        public ChatForm()
+        public Messager()
         {
             InitializeComponent();
+         
+        }
+
+        private void ChatForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void materialRaisedButton1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+
         }
     }
 }

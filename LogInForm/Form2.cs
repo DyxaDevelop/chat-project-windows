@@ -65,16 +65,24 @@ namespace LogInForm
 
                 var asyncClientEvent = new AsyncClientEvent { };
 
-                asyncClientEvent.StartClient(userNickname, userPassword, "register", ID ,currentForm);
+                asyncClientEvent.StartClient(userNickname, userPassword, "register", userID ,currentForm);
 
             }
 
 
         }
 
-        public void getResponse() {
+        public void showMessageBox(String message) {
 
-            MessageBox.Show("Received Response");
+            MessageBox.Show(message);
+        }
+
+        public void logIntoChat() 
+        {
+            Messager chatForm = new Messager();
+            chatForm.Show();
+            Hide();
+
         }
 
         private void InputPassword_Click(object sender, EventArgs e)

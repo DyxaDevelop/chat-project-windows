@@ -40,10 +40,7 @@ namespace LogInForm
 
             // Connect to a remote device.  
             try
-            {
-                // Establish the remote endpoint for the socket.  
-                // The name of the
-                // remote device is "host.contoso.com".  
+            { 
                 IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
                 IPAddress ipAddress = ipHostInfo.AddressList[0];
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, 11000);
@@ -65,15 +62,16 @@ namespace LogInForm
                 Receive(client);
                 receiveDone.WaitOne();
 
-
                 // Write the response to the console.  
                 Console.WriteLine("Response received : {0}", response);
 
+                currentForm.showMessageBox(response);
 
-                if (currentForm != null)
+                if (response == "User created!")
                 {
-                    currentForm.getResponse();
+                    currentForm.logIntoChat();
                 }
+
 
                 // Release the socket.  
                 client.Shutdown(SocketShutdown.Both);
@@ -154,6 +152,7 @@ namespace LogInForm
                     if (state.sb.Length > 1)
                     {
                         response = state.sb.ToString();
+                        Console.WriteLine(response);
                     }
                     // Signal that all bytes have been received.  
                     receiveDone.Set();
