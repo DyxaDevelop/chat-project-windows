@@ -1,30 +1,44 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
+using System.Collections.Generic;
+using Firebase.Database;
+using Firebase;
+using Firebase.Database.Query;
+using Firebase.Database.Streaming;
+using System.Threading.Tasks;
 
-// State object for reading client data asynchronously  
+
 public class StateObject
 {
-    // Client  socket.  
+
     public Socket workSocket = null;
-    // Size of receive buffer.  
+
     public const int BufferSize = 1024;
-    // Receive buffer.  
+ 
     public byte[] buffer = new byte[BufferSize];
-    // Received data string.  
+
     public StringBuilder sb = new StringBuilder();
 
 }
 
 public class AsynchronousSocketListener
 {
-    // Thread signal.  
+
+    public static List<UserRegisterData> allUsersList = new List<UserRegisterData>();
+
+    public static FirebaseClient firebaseClient = new FirebaseClient(
+      "https://chat-project-windows.firebaseio.com/",
+      new FirebaseOptions
+      {
+          AuthTokenAsyncFactory = () => Task.FromResult("tHmSMQiVIpGNN3SyXUFhaeefKQmE55rpzwpw4aj6")
+      });
+
+
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
     public AsynchronousSocketListener()
@@ -33,20 +47,18 @@ public class AsynchronousSocketListener
 
     public static void StartListening()
     {
-        // Establish the local endpoint for the socket.  
-        // The DNS name of the computer  
-        // running the listener is "host.contoso.com".  
+
+        getAllUsers();
+
         IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
         Console.WriteLine(ipHostInfo);
         IPAddress ipAddress = ipHostInfo.AddressList[0];
         Console.WriteLine(ipAddress);
         IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
 
-        // Create a TCP/IP socket.  
         Socket listener = new Socket(ipAddress.AddressFamily,
             SocketType.Stream, ProtocolType.Tcp);
-
-        // Bind the socket to the local endpoint and listen for incoming connections.  
+ 
         try
         {
             listener.Bind(localEndPoint);
@@ -54,16 +66,13 @@ public class AsynchronousSocketListener
 
             while (true)
             {
-                // Set the event to nonsignaled state.  
                 allDone.Reset();
 
-                // Start an asynchronous socket to listen for connections.  
                 Console.WriteLine("Waiting for a connection...");
                 listener.BeginAccept(
                     new AsyncCallback(AcceptCallback),
                     listener);
 
-                // Wait until a connection is made before continuing.  
                 allDone.WaitOne();
             }
 
@@ -79,15 +88,12 @@ public class AsynchronousSocketListener
     }
 
     public static void AcceptCallback(IAsyncResult ar)
-    {
-        // Signal the main thread to continue.  
+    { 
         allDone.Set();
-
-        // Get the socket that handles the client request.  
+ 
         Socket listener = (Socket)ar.AsyncState;
         Socket handler = listener.EndAccept(ar);
-
-        // Create the state object.  
+ 
         StateObject state = new StateObject();
         state.workSocket = handler;
         handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
@@ -97,21 +103,15 @@ public class AsynchronousSocketListener
     public static void ReadCallback(IAsyncResult ar)
     {
         String content = String.Empty;
-
-        // Retrieve the state object and the handler socket  
-        // from the asynchronous state object.  
+ 
         StateObject state = (StateObject)ar.AsyncState;
         Socket handler = state.workSocket;
 
-        // Read data from the client socket.
         int bytesRead = handler.EndReceive(ar);
 
 
         if (bytesRead > 0)
         {
-            Console.WriteLine("Received Data");
-
-            // There  might be more data, so store the data received so far.  
             state.sb.Append(Encoding.ASCII.GetString(
                 state.buffer, 0, bytesRead));
 
@@ -120,29 +120,25 @@ public class AsynchronousSocketListener
 
             string eventNameReceived = json["eventName"].Value<string>();
             if (eventNameReceived.Equals("Register")) {
-                Console.WriteLine("CONTAINS");
+
+                UserRegisterData receivedUserRegister = JsonConvert.DeserializeObject<UserRegisterData>(content);
+
+                Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
+                content.Length, content);
+
+
+                checkIfUserExists(receivedUserRegister);
+
+                Send(handler, content);
+
             }
-            UserRegisterData receivedData = JsonConvert.DeserializeObject<UserRegisterData>(content);
-
-            Console.WriteLine(receivedData.userName);
-            Console.WriteLine(receivedData.userPassword);
-            // All the data has been read from the
-            // client. Display it on the console.  
-
-            Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
-            content.Length, content);
-
-            // Echo the data back to the client.  
-            Send(handler, content);
         }
     }
 
     private static void Send(Socket handler, String data)
     {
-        // Convert the string data to byte data using ASCII encoding.  
         byte[] byteData = Encoding.ASCII.GetBytes(data);
 
-        // Begin sending the data to the remote device.  
         handler.BeginSend(byteData, 0, byteData.Length, 0,
             new AsyncCallback(SendCallback), handler);
     }
@@ -151,10 +147,8 @@ public class AsynchronousSocketListener
     {
         try
         {
-            // Retrieve the socket from the state object.  
             Socket handler = (Socket)ar.AsyncState;
 
-            // Complete sending the data to the remote device.  
             int bytesSent = handler.EndSend(ar);
             Console.WriteLine("Sent {0} bytes to client.", bytesSent);
 
@@ -174,9 +168,48 @@ public class AsynchronousSocketListener
         return 0;
     }
 
+    public static async void getAllUsers() {
+
+        var users = await firebaseClient
+            .Child("Users")
+            .OrderByKey()
+            .OnceAsync<UserRegisterData>();
+
+        foreach (var user in users)
+        {
+            allUsersList.Add(user.Object);
+        }
+    }
+
+    public static async void addUser(UserRegisterData receivedUserRegister)
+    {
+            await firebaseClient.Child("Users")
+                .Child(receivedUserRegister.userName)
+                .PutAsync(receivedUserRegister);
+    }
+
+    public static void checkIfUserExists(UserRegisterData receivedUserRegister)
+    {
+        bool userExists = false;
+
+        foreach (var currentUser in allUsersList)
+        {
+            if (currentUser.userName == receivedUserRegister.userName)
+            {
+                userExists = true;
+            }
+        }
+
+        if (!userExists)
+        {
+            addUser(receivedUserRegister);
+        }
+    }
+
 }
 public class UserRegisterData
 {
+    public string userID { get; set; }
     public string userName { get; set; }
     public string userPassword { get; set; }
 }

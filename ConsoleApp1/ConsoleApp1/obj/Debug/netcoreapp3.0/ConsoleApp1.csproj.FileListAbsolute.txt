@@ -28,7 +28,4 @@ F:\Chat-Project-Windows\ConsoleApp1\ConsoleApp1\bin\Debug\netcoreapp3.0\LiteDB.d
 F:\Chat-Project-Windows\ConsoleApp1\ConsoleApp1\bin\Debug\netcoreapp3.0\System.Reactive.dll
 F:\Chat-Project-Windows\ConsoleApp1\ConsoleApp1\bin\Debug\netcoreapp3.0\LogInForm.pdb
 F:\Chat-Project-Windows\ConsoleApp1\ConsoleApp1\bin\Debug\netcoreapp3.0\LogInForm.exe.config
-F:\Chat-Project-Windows\ConsoleApp1\ConsoleApp1\bin\Debug\netcoreapp3.0\Firebase.xml
-F:\Chat-Project-Windows\ConsoleApp1\ConsoleApp1\bin\Debug\netcoreapp3.0\LiteDB.xml
-F:\Chat-Project-Windows\ConsoleApp1\ConsoleApp1\bin\Debug\netcoreapp3.0\System.Reactive.xml
 F:\Chat-Project-Windows\ConsoleApp1\ConsoleApp1\obj\Debug\netcoreapp3.0\ConsoleApp1.csproj.CopyComplete
