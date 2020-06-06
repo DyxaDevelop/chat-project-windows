@@ -1,0 +1,6 @@
+F:\Chat-Project-Windows\LogInForm\obj\Release\LogInForm.Messager.resources
+F:\Chat-Project-Windows\LogInForm\obj\Release\LogInForm.ChatListItem.resources
+F:\Chat-Project-Windows\LogInForm\obj\Release\LogInForm.Form1.resources
+F:\Chat-Project-Windows\LogInForm\obj\Release\LogInForm.Form2.resources
+F:\Chat-Project-Windows\LogInForm\obj\Release\LogInForm.Properties.Resources.resources
+F:\Chat-Project-Windows\LogInForm\obj\Release\LogInForm.csproj.GenerateResource.cache

@@ -31,6 +31,13 @@ public class AsynchronousSocketListener
 
     public static List<UserRegisterData> allUsersList = new List<UserRegisterData>();
 
+    public static List<ChatMessage> allMessagesList = new List<ChatMessage>();
+
+    public static bool firstCheck = true;
+
+    public static int initialMessageCount;
+    public static int repeatCount;
+
     public static FirebaseClient firebaseClient = new FirebaseClient(
       "https://chat-project-windows.firebaseio.com/",
       new FirebaseOptions
@@ -124,7 +131,13 @@ public class AsynchronousSocketListener
                 UserRegisterData receivedUserRegister = JsonConvert.DeserializeObject<UserRegisterData>(content);
 
                 checkIfUserExists(handler, receivedUserRegister);
+            }
 
+            if (eventNameReceived.Equals("Login"))
+            {
+                UserLoginData receivedUserLogin = JsonConvert.DeserializeObject<UserLoginData>(content);
+
+                attemptUserLogin(handler, receivedUserLogin);
             }
         }
     }
@@ -158,8 +171,51 @@ public class AsynchronousSocketListener
 
     public static int Main(String[] args)
     {
+        SubscribeToMessages();
         StartListening();
         return 0;
+    }
+
+    public static async void SubscribeToMessages()
+    {
+        var messages = await firebaseClient
+            .Child("Chat")
+            .OnceAsync<ChatMessage>();
+
+        initialMessageCount = messages.Count;
+
+        Console.WriteLine(initialMessageCount + " Message Count");
+
+        repeatCount = 0;
+
+        var observable = firebaseClient
+              .Child("Chat")
+              .AsObservable<ChatMessage>()
+              .Subscribe(d => addAndDisplayMessages(d.Object));
+
+        Console.WriteLine("TRYNA GET");
+    }
+
+    public static void addAndDisplayMessages(ChatMessage d)
+    {
+        if (firstCheck != true)
+        {
+            initialMessageCount++;   
+        }
+
+        allMessagesList.Add(d);
+
+        if (allMessagesList.Count == initialMessageCount)
+        {
+            foreach (var message in allMessagesList)
+            {
+                Console.WriteLine(message.userMessage);
+                Console.WriteLine("MESSAGE ABOVE");
+                Console.WriteLine("------------------------");
+            }
+
+            firstCheck = false;
+        }
     }
 
     public static async void getAllUsers() {
@@ -195,14 +251,50 @@ public class AsynchronousSocketListener
             if (currentUser.userName == receivedUserRegister.userName)
             {
                 userExists = true;
-
                 Send(handler, "User already exists!");
             }
         }
 
-        if (!userExists)
+        if (userExists == false)
         {
             addUser(handler, receivedUserRegister);
+        }
+    }
+
+    public static void attemptUserLogin(Socket handler, UserLoginData receivedUserLogin)
+    {
+        bool userExists = false;
+
+        foreach (var currentUser in allUsersList)
+        {
+            if (currentUser.userName == receivedUserLogin.userName)
+            {
+                userExists = true;
+            }
+        }
+
+        if (userExists == true)
+        {
+            checkUserValidity(handler, receivedUserLogin);
+        }
+    }
+
+    public static void checkUserValidity(Socket handler, UserLoginData receivedUserLogin)
+    {
+        bool loggedIn = false;
+        foreach (var currentUser in allUsersList)
+        {
+            if (currentUser.userName == receivedUserLogin.userName &&
+                currentUser.userPassword == receivedUserLogin.userPassword)
+            {
+                loggedIn = true;
+                Send(handler, "Login successful!");
+            }
+        }
+
+        if (loggedIn == false)
+        {
+            Send(handler, "Data incorrect!");
         }
     }
 
@@ -212,4 +304,16 @@ public class UserRegisterData
     public string userID { get; set; }
     public string userName { get; set; }
     public string userPassword { get; set; }
+}
+
+public class UserLoginData
+{
+    public string userName { get; set; }
+    public string userPassword { get; set; }
+}
+
+public class ChatMessage
+{
+    public string userName { get; set; }
+    public string userMessage { get; set; }
 }

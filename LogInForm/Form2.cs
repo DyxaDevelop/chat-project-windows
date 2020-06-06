@@ -59,14 +59,19 @@ namespace LogInForm
 
 
 
-            if (!String.IsNullOrEmpty(userNickname) && !String.IsNullOrEmpty(userPassword)) {
+            if (!String.IsNullOrEmpty(userNickname) && !String.IsNullOrEmpty(userPassword))
+            {
 
                 Form2 currentForm = this;
 
                 var asyncClientEvent = new AsyncClientEvent { };
 
-                asyncClientEvent.StartClient(userNickname, userPassword, "register", userID ,currentForm);
+                asyncClientEvent.StartClientWithForm2(userNickname, userPassword, "Register", userID, currentForm);
 
+            }
+            else 
+            {
+                MessageBox.Show("Please fill in all the balnks");
             }
 
 

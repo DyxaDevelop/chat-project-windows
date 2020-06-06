@@ -44,11 +44,7 @@ C:\Users\Cloud\OneDrive\Desktop\LogInForm\LogInForm\bin\Debug\System.Reactive.xm
 F:\Chat-Project-Windows\LogInForm\bin\Debug\LogInForm.exe.config
 F:\Chat-Project-Windows\LogInForm\bin\Debug\LogInForm.exe
 F:\Chat-Project-Windows\LogInForm\bin\Debug\LogInForm.pdb
-F:\Chat-Project-Windows\LogInForm\bin\Debug\Firebase.xml
-F:\Chat-Project-Windows\LogInForm\bin\Debug\LiteDB.xml
 F:\Chat-Project-Windows\LogInForm\bin\Debug\Newtonsoft.Json.xml
-F:\Chat-Project-Windows\LogInForm\bin\Debug\RestSharp.xml
-F:\Chat-Project-Windows\LogInForm\bin\Debug\System.Reactive.xml
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.csprojAssemblyReference.cache
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.Form1.resources
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.Form2.resources
@@ -59,3 +55,5 @@ F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.exe
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.pdb
 F:\Chat-Project-Windows\LogInForm\bin\Debug\Newtonsoft.Json.dll
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.Messager.resources
+F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.ChatListItem.resources
+F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.csproj.CoreCompileInputs.cache

@@ -37,7 +37,25 @@ namespace LogInForm
 
         private void materialRaisedButton1_Click(object sender, EventArgs e)
         {
+            string userNickname = InputNickname.Text;
+            string userPassword = InputPassword.Text;
 
+
+
+            if (!String.IsNullOrEmpty(userNickname) && !String.IsNullOrEmpty(userPassword))
+            {
+
+                Form1 currentForm = this;
+
+                var asyncClientEvent = new AsyncClientEvent { };
+
+                asyncClientEvent.StartClientWithForm1(userNickname, userPassword, "Login", "null", currentForm);
+
+            }
+            else
+            {
+                MessageBox.Show("Please fill in all the balnks");
+            }
         }
 
         private void materialDivider1_Click(object sender, EventArgs e)
@@ -49,6 +67,19 @@ namespace LogInForm
         {
             Form2 form2 = new Form2();
             form2.Show();
+            Hide();
+        }
+
+        public void showMessageBox(String message)
+        {
+
+            MessageBox.Show(message);
+        }
+
+        public void logIntoChat()
+        {
+            Messager chatForm = new Messager();
+            chatForm.Show();
             Hide();
         }
     }

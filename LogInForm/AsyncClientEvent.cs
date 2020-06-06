@@ -15,7 +15,8 @@ namespace LogInForm
 {
     internal class AsyncClientEvent
     {
-        static Form2 currentForm;
+        static Form1 currentLoginForm;
+        static Form2 currentRegisterForm;
 
         public AsyncClientEvent() { }
 
@@ -33,14 +34,24 @@ namespace LogInForm
         // The response from the remote device.  
         private static String response = String.Empty;
 
-        public void StartClient(String userName, String userPassword, String eventName, string userID,  Form2 form2)
+        public void StartClientWithForm1(String userName, String userPassword, String eventName, string userID, Form1 form1)
         {
+            currentLoginForm = form1;
+            StartClient(userName, userPassword, eventName, userID);
+        }
 
-            currentForm = form2;
+        public void StartClientWithForm2(String userName, String userPassword, String eventName, string userID, Form2 form2)
+        {
+            currentRegisterForm = form2;
+            StartClient(userName, userPassword, eventName, userID);
+        }
+
+        public void StartClient(String userName, String userPassword, String eventName, string userID)
+        {
 
             // Connect to a remote device.  
             try
-            { 
+            {
                 IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
                 IPAddress ipAddress = ipHostInfo.AddressList[0];
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, 11000);
@@ -55,23 +66,37 @@ namespace LogInForm
                 connectDone.WaitOne();
 
                 // Send test data to the remote device.  
-                Send(client, userName, userPassword, userID);
+                Send(client, eventName, userName, userPassword, userID);
                 sendDone.WaitOne();
 
                 // Receive the response from the remote device.  
                 Receive(client);
+                receiveDone.Reset();
                 receiveDone.WaitOne();
 
                 // Write the response to the console.  
                 Console.WriteLine("Response received : {0}", response);
 
-                currentForm.showMessageBox(response);
-
-                if (response == "User created!")
+                switch (response)
                 {
-                    currentForm.logIntoChat();
-                }
+                    case "User created!":
+                        currentRegisterForm.showMessageBox(response);
+                        currentRegisterForm.logIntoChat();
+                        break;
 
+                    case "User already exists!":
+                        currentRegisterForm.showMessageBox(response);
+                        break;
+
+                    case "Login successful!":
+                        currentLoginForm.showMessageBox(response);
+                        currentLoginForm.logIntoChat();
+                        break;
+
+                    case "Data incorrect!":
+                        currentLoginForm.showMessageBox(response);
+                        break;
+                }
 
                 // Release the socket.  
                 client.Shutdown(SocketShutdown.Both);
@@ -154,9 +179,8 @@ namespace LogInForm
                         response = state.sb.ToString();
                         Console.WriteLine(response);
                     }
-                    // Signal that all bytes have been received.  
+                    // Signal that all bytes have been received. 
                     receiveDone.Set();
-
                 }
             }
             catch (Exception e)
@@ -165,12 +189,11 @@ namespace LogInForm
             }
         }
 
-        private static void Send(Socket client, String userName, String userPassword, String userID)
+        private static void Send(Socket client, String eventName, String userName, String userPassword, String userID)
         {
-            Console.WriteLine("ENTERED -----------------------------------");
             // Convert the string data to byte data using ASCII encoding.
             var data = new UserRegisterData {
-                eventName = "Register",
+                eventName = eventName,
                 userID = userID,
                 userName = userName,
                 userPassword = userPassword
@@ -235,12 +258,7 @@ namespace LogInForm
         [NonSerialized]
         public byte[] buffer = new byte[1024];
 
-        public string msg;     //the only thing we really send.
-
-        //Usually you shouldn't but these 2 methods in your class because they don't operate specifically on this object
-        //and we would get allot of duplicate code if we would put those 2 methods in each class we would like to
-        //be able to send but to not wind up having to write a couple of utility classes (where these should reside)
-        // I let them reside here for now.
+        public string msg; 
         public byte[] Serialize()
         {
             BinaryFormatter bin = new BinaryFormatter();
