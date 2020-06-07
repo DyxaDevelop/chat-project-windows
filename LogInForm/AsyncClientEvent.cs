@@ -10,6 +10,8 @@ using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Windows.Forms;
 
 namespace LogInForm
 {
@@ -17,6 +19,7 @@ namespace LogInForm
     {
         static Form1 currentLoginForm;
         static Form2 currentRegisterForm;
+        static Messager currentChatForm;
 
         public AsyncClientEvent() { }
 
@@ -43,6 +46,12 @@ namespace LogInForm
         public void StartClientWithForm2(String userName, String userPassword, String eventName, string userID, Form2 form2)
         {
             currentRegisterForm = form2;
+            StartClient(userName, userPassword, eventName, userID);
+        }
+
+        public void StartClientWithChatForm(String userName, String userPassword, String eventName, string userID, Messager chatForm)
+        {
+            currentChatForm = chatForm;
             StartClient(userName, userPassword, eventName, userID);
         }
 
@@ -96,11 +105,18 @@ namespace LogInForm
                     case "Data incorrect!":
                         currentLoginForm.showMessageBox(response);
                         break;
+
+                    case "Some Messages":
+                        currentChatForm.showMessageBox(response);
+                        break;
                 }
 
+
+                Receive(client);
+
                 // Release the socket.  
-                client.Shutdown(SocketShutdown.Both);
-                client.Close();
+                //client.Shutdown(SocketShutdown.Both);
+                //client.Close();
 
             }
             catch (Exception e)
@@ -135,7 +151,7 @@ namespace LogInForm
         {
             try
             {
-                // Create the state object.  
+                // Create the state object.
                 ClientStateObject state = new ClientStateObject();
                 state.workSocket = client;
 
@@ -161,31 +177,51 @@ namespace LogInForm
 
                 // Read data from the remote device.  
                 int bytesRead = client.EndReceive(ar);
+                Console.WriteLine("Bytes Read: " + bytesRead);
 
                 if (bytesRead > 0)
                 {
-                    // There might be more data, so store the data received so far.  
+                    // There might be more data, so store the data received so far.
                     state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
+                    response = state.sb.ToString();
 
+                }
+                    if(response.Equals("User created!") ||
+                       response.Equals("User already exists!") ||
+                       response.Equals("Login successful!") ||
+                       response.Equals("Data incorrect!") ||
+                       response.Equals("Some Messages") ||
+                       response.Contains("]"))
+                    {
+
+                         Console.WriteLine("INSIDE ELSE OF STATE SB");
+                         Console.WriteLine("Checked Response: " + response);
+                         // All the data has arrived; put it in response.  
+
+                            if(isValidJSON(response) == true)
+                                {
+                                    Console.WriteLine(response);
+                                    Console.WriteLine("TRYING TO CALL POPULATE");
+                                    List<ChatMessage> receivedChatMessageList = JsonConvert.DeserializeObject<List<ChatMessage>>(response);
+                                    currentChatForm.populateChat(receivedChatMessageList);
+                                }
+                            
+                         // Signal that all bytes have been received.
+                            Console.WriteLine("CLEARED -----------------------------------");
+                            state.sb.Clear();
+                            receiveDone.Set();
+                    }
+                    else
+                {
                     // Get the rest of the data.  
                     client.BeginReceive(state.buffer, 0, ClientStateObject.BufferSize, 0,
                         new AsyncCallback(ReceiveCallback), state);
                 }
-                else
-                {
-                    // All the data has arrived; put it in response.  
-                    if (state.sb.Length > 1)
-                    {
-                        response = state.sb.ToString();
-                        Console.WriteLine(response);
-                    }
-                    // Signal that all bytes have been received. 
-                    receiveDone.Set();
-                }
+
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine(e.ToString() + "Exception");
             }
         }
 
@@ -228,22 +264,25 @@ namespace LogInForm
             }
         }
 
-        public static byte[] ObjectToByteArray(UserRegisterData obj)
+        public static bool isValidJSON(String json)
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            using (var ms = new MemoryStream())
-            {
-                bf.Serialize(ms, obj);
-                return ms.ToArray();
-            }
-        }
+            json = json.Trim();
 
-        public static object ByteArrayToObjectTest(byte[] arrBytes)
-        {
-
-            BinaryFormatter formatter = new BinaryFormatter();
-            MemoryStream ms = new MemoryStream(arrBytes);
-            return formatter.Deserialize(ms);
+                try
+                {
+                    var obj = JToken.Parse(json);
+                    return true;
+                }
+                catch (JsonReaderException e)
+                {
+                    Console.WriteLine(e.Message);
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    return false;
+                }
         }
 
 

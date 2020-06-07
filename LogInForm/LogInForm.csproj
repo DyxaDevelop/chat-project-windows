@@ -106,6 +106,7 @@
     <Compile Include="ChatListItem.Designer.cs">
       <DependentUpon>ChatListItem.cs</DependentUpon>
     </Compile>
+    <Compile Include="ChatMessage.cs" />
     <Compile Include="ClientStateObject.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
