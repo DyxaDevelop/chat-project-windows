@@ -15,10 +15,14 @@ namespace LogInForm
 {
     public partial class Messager : MaterialForm
     {
-        public Messager()
+        public String userID;
+        public String userName;
+
+        public Messager(String userID, String userName)
         {
             InitializeComponent();
-         
+            this.userID = userID;
+            this.userName = userName;
         }
 
         private void ChatForm_Load(object sender, EventArgs e)
@@ -28,6 +32,23 @@ namespace LogInForm
 
         private void materialRaisedButton1_Click(object sender, EventArgs e)
         {
+            String userMessage = MessageTextBox.Text;
+
+
+            if (!String.IsNullOrEmpty(userMessage))
+            {
+                MessageTextBox.Text = String.Empty;
+                Messager currentForm = this;
+
+                var asyncClientEvent = new AsyncClientEvent { };
+
+                asyncClientEvent.StartClientWithChatForm(userName, "null", "Send_Message", userID, currentForm, userMessage);
+
+            }
+            else
+            {
+                MessageBox.Show("Please fill in all the balnks");
+            }
 
         }
 
@@ -51,19 +72,16 @@ namespace LogInForm
                     chatListItems[i].UserName = chatMessages[i].userName;
                     chatListItems[i].UserMessage = chatMessages[i].userMessage;
 
-                    UpdateFlowLayoutPanel(chatListItems[i]);
-            }
+                    UpdateFlowLayoutPanel(chatListItems[i], i, chatListItems.Length - 1);
+                }
 
 
         }
 
-        private void UpdateFlowLayoutPanel(ChatListItem currentChatMessage)
+        private void UpdateFlowLayoutPanel(ChatListItem currentChatMessage, int currentItemCount, int listSize)
         {
 
             Thread FlowLayoutThread = new Thread(delegate () {
-
-                // Change the status of the buttons inside the TypingThread
-                // This won't throw an exception anymore !
                 if (flowLayoutPanel1.InvokeRequired)
                 {
                     flowLayoutPanel1.Invoke(new MethodInvoker(delegate
@@ -74,7 +92,17 @@ namespace LogInForm
                         }
                         else
                         {
+                            if(currentItemCount == 0)
+                            {
+                                flowLayoutPanel1.Controls.Clear();
+                            }
+
                             flowLayoutPanel1.Controls.Add(currentChatMessage);
+
+                            if(currentItemCount == listSize)
+                            {
+                                flowLayoutPanel1.ScrollControlIntoView(currentChatMessage);
+                            }
                         }
                     }));
                 }
@@ -90,7 +118,7 @@ namespace LogInForm
 
                 var asyncClientEvent = new AsyncClientEvent { };
 
-                asyncClientEvent.StartClientWithChatForm("null", "null", "Get_Messages", "null", currentForm);
+                asyncClientEvent.StartClientWithChatForm("null", "null", "Get_Messages", "null", currentForm, "null");
         }
         public void showMessageBox(String message)
         {
@@ -98,6 +126,11 @@ namespace LogInForm
         }
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void MessageTextBox_TextChanged(object sender, EventArgs e)
         {
 
         }

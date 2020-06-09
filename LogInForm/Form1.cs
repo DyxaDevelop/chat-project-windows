@@ -15,6 +15,7 @@ namespace LogInForm
     public partial class Form1 : MaterialForm
 
     {
+        public String userNickname;
 
         public Form1()
         {
@@ -28,6 +29,7 @@ namespace LogInForm
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
         }
 
         private void materialLabel1_Click_1(object sender, EventArgs e)
@@ -37,7 +39,7 @@ namespace LogInForm
 
         private void materialRaisedButton1_Click(object sender, EventArgs e)
         {
-            string userNickname = InputNickname.Text;
+            userNickname = InputNickname.Text;
             string userPassword = InputPassword.Text;
 
 
@@ -45,11 +47,20 @@ namespace LogInForm
             if (!String.IsNullOrEmpty(userNickname) && !String.IsNullOrEmpty(userPassword))
             {
 
-                Form1 currentForm = this;
+                if (userPassword.Length < 6)
+                {
+                    MessageBox.Show("The password must be at least 6 characters.");
+                }
+                else
+                {
+                    Form1 currentForm = this;
 
-                var asyncClientEvent = new AsyncClientEvent { };
+                    var asyncClientEvent = new AsyncClientEvent { };
 
-                asyncClientEvent.StartClientWithForm1(userNickname, userPassword, "Login", "null", currentForm);
+                    asyncClientEvent.StartClientWithForm1(userNickname, userPassword, "Login", "null", currentForm);
+                }
+
+
 
             }
             else
@@ -78,7 +89,7 @@ namespace LogInForm
 
         public void logIntoChat()
         {
-            Messager chatForm = new Messager();
+            Messager chatForm = new Messager("null", userNickname);
             chatForm.Show();
             Hide();
         }

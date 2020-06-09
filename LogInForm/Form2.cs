@@ -19,6 +19,8 @@ namespace LogInForm
     public partial class Form2 : MaterialForm
 
     {
+        public String userID;
+        public String userNickname;
 
 
         FirebaseClient firebaseClient = new FirebaseClient(
@@ -53,8 +55,8 @@ namespace LogInForm
             Guid guid = Guid.NewGuid();
             string ID = guid.ToString();
 
-            string userID = ID;
-            string userNickname = InputNickname.Text;
+            userID = ID;
+            userNickname = InputNickname.Text;
             string userPassword = InputPassword.Text;
 
 
@@ -62,11 +64,18 @@ namespace LogInForm
             if (!String.IsNullOrEmpty(userNickname) && !String.IsNullOrEmpty(userPassword))
             {
 
-                Form2 currentForm = this;
+                if(userPassword.Length < 6)
+                {
+                    MessageBox.Show("The password must be at least 6 characters.");
+                }
+                else
+                {
+                    Form2 currentForm = this;
 
-                var asyncClientEvent = new AsyncClientEvent { };
+                    var asyncClientEvent = new AsyncClientEvent { };
 
-                asyncClientEvent.StartClientWithForm2(userNickname, userPassword, "Register", userID, currentForm);
+                    asyncClientEvent.StartClientWithForm2(userNickname, userPassword, "Register", userID, currentForm);
+                }
 
             }
             else 
@@ -84,7 +93,7 @@ namespace LogInForm
 
         public void logIntoChat() 
         {
-            Messager chatForm = new Messager();
+            Messager chatForm = new Messager(userID, userNickname);
             chatForm.Show();
             Hide();
 

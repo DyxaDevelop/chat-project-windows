@@ -21,6 +21,8 @@ namespace LogInForm
         static Form2 currentRegisterForm;
         static Messager currentChatForm;
 
+        public static String extraData = "null";
+
         public AsyncClientEvent() { }
 
         // The port number for the remote device.  
@@ -49,9 +51,10 @@ namespace LogInForm
             StartClient(userName, userPassword, eventName, userID);
         }
 
-        public void StartClientWithChatForm(String userName, String userPassword, String eventName, string userID, Messager chatForm)
+        public void StartClientWithChatForm(String userName, String userPassword, String eventName, string userID, Messager chatForm, String userMessage)
         {
             currentChatForm = chatForm;
+            extraData = userMessage;
             StartClient(userName, userPassword, eventName, userID);
         }
 
@@ -78,45 +81,49 @@ namespace LogInForm
                 Send(client, eventName, userName, userPassword, userID);
                 sendDone.WaitOne();
 
-                // Receive the response from the remote device.  
-                Receive(client);
-                receiveDone.Reset();
-                receiveDone.WaitOne();
-
-                // Write the response to the console.  
-                Console.WriteLine("Response received : {0}", response);
-
-                switch (response)
+                if(eventName != "Send_Message")
                 {
-                    case "User created!":
-                        currentRegisterForm.showMessageBox(response);
-                        currentRegisterForm.logIntoChat();
-                        break;
+                    // Receive the response from the remote device.  
+                    Receive(client);
+                    receiveDone.Reset();
+                    receiveDone.WaitOne();
 
-                    case "User already exists!":
-                        currentRegisterForm.showMessageBox(response);
-                        break;
+                    // Write the response to the console.  
+                    Console.WriteLine("Response received : {0}", response);
 
-                    case "Login successful!":
-                        currentLoginForm.showMessageBox(response);
-                        currentLoginForm.logIntoChat();
-                        break;
+                    switch (response)
+                    {
+                        case "User created!":
+                            currentRegisterForm.showMessageBox(response);
+                            currentRegisterForm.logIntoChat();
+                            break;
 
-                    case "Data incorrect!":
-                        currentLoginForm.showMessageBox(response);
-                        break;
+                        case "User already exists!":
+                            currentRegisterForm.showMessageBox(response);
+                            break;
 
-                    case "Some Messages":
-                        currentChatForm.showMessageBox(response);
-                        break;
+                        case "Login successful!":
+                            currentLoginForm.showMessageBox(response);
+                            currentLoginForm.logIntoChat();
+                            break;
+
+                        case "Data incorrect!":
+                            currentLoginForm.showMessageBox(response);
+                            break;
+
+                        case "Some Messages":
+                            currentChatForm.showMessageBox(response);
+                            break;
+
+                        case "Message Sent!":
+                            currentChatForm.showMessageBox(response);
+                            break;
+
+                        case "User doesn't exist!":
+                            currentLoginForm.showMessageBox(response);
+                            break;
+                    }
                 }
-
-
-                Receive(client);
-
-                // Release the socket.  
-                //client.Shutdown(SocketShutdown.Both);
-                //client.Close();
 
             }
             catch (Exception e)
@@ -190,27 +197,25 @@ namespace LogInForm
                        response.Equals("User already exists!") ||
                        response.Equals("Login successful!") ||
                        response.Equals("Data incorrect!") ||
+                       response.Equals("User doesn't exist!") ||
                        response.Equals("Some Messages") ||
-                       response.Contains("]"))
+                       response.Equals("Message Sent!") ||
+                       isValidJSON(response) == true)
                     {
-
-                         Console.WriteLine("INSIDE ELSE OF STATE SB");
-                         Console.WriteLine("Checked Response: " + response);
                          // All the data has arrived; put it in response.  
 
                             if(isValidJSON(response) == true)
                                 {
-                                    Console.WriteLine(response);
-                                    Console.WriteLine("TRYING TO CALL POPULATE");
                                     List<ChatMessage> receivedChatMessageList = JsonConvert.DeserializeObject<List<ChatMessage>>(response);
                                     currentChatForm.populateChat(receivedChatMessageList);
                                 }
                             
                          // Signal that all bytes have been received.
-                            Console.WriteLine("CLEARED -----------------------------------");
                             state.sb.Clear();
                             receiveDone.Set();
-                    }
+
+                            Receive(client);
+                }
                     else
                 {
                     // Get the rest of the data.  
@@ -227,15 +232,31 @@ namespace LogInForm
 
         private static void Send(Socket client, String eventName, String userName, String userPassword, String userID)
         {
-            // Convert the string data to byte data using ASCII encoding.
-            var data = new UserRegisterData {
-                eventName = eventName,
-                userID = userID,
-                userName = userName,
-                userPassword = userPassword
-            };
+            string json;
 
-            string json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            if(eventName.Equals("Send_Message"))
+            {
+                var messageData = new ChatMessage
+                {
+                    eventName = eventName,
+                    userName = userName,
+                    userMessage = extraData
+                };
+
+                json = JsonConvert.SerializeObject(messageData, Formatting.Indented);
+            }
+            else
+            {
+                var userData = new UserRegisterData
+                {
+                    eventName = eventName,
+                    userID = userID,
+                    userName = userName,
+                    userPassword = userPassword
+                };
+
+                json = JsonConvert.SerializeObject(userData, Formatting.Indented);
+            }          
 
             byte[] byteData = Encoding.ASCII.GetBytes(json);
 

@@ -108,22 +108,18 @@ public class AsynchronousSocketListener
         handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
             new AsyncCallback(ReadCallback), state);
 
-        bool newDevice = true;
+        /*bool newDevice = true;
         foreach (Socket currentHandler in allConnectedDevices)
         {
             if (currentHandler.LocalEndPoint.Equals(handler.LocalEndPoint))
             {
                 newDevice = false;
             }
-        }
+        }*/
 
-        if (newDevice == true)
-        {
-
-            allConnectedDevices.Add(handler); // Add connected device to list
-            Console.WriteLine("Added socket: " + handler);
-            Console.WriteLine(handler.LocalEndPoint);
-        }
+        //if (newDevice == true)
+        //{
+        //}
         
     }
 
@@ -168,14 +164,26 @@ public class AsynchronousSocketListener
 
                 Send(handler, messageJSON);
             }
+            
+            if (eventNameReceived.Equals("Send_Message"))
+            {
+
+                ChatMessage receivedUserMessage = JsonConvert.DeserializeObject<ChatMessage>(content);
+
+                ChatMessageForUpload convertedUserMessage = new ChatMessageForUpload
+                {
+                    userName = receivedUserMessage.userName,
+                    userMessage = receivedUserMessage.userMessage
+                };
+
+                uploadMessage(handler, convertedUserMessage);
+            }
         }
     }
 
     private static void Send(Socket handler, String data)
     {
         byte[] byteData = Encoding.ASCII.GetBytes(data);
-
-        Console.WriteLine(data + " Data sent");
 
         handler.BeginSend(byteData, 0, byteData.Length, 0,
             new AsyncCallback(SendCallback), handler);
@@ -190,7 +198,6 @@ public class AsynchronousSocketListener
             int bytesSent = handler.EndSend(ar);
 
             Console.WriteLine("Sent {0} bytes to client.", bytesSent);
-            //handler.Close();
 
         }
         catch (Exception e)
@@ -206,6 +213,11 @@ public class AsynchronousSocketListener
         return 0;
     }
 
+    public static void addToListOfConnectedDevices(Socket handler)
+    {
+        allConnectedDevices.Add(handler); // Add connected device to list
+    }
+
     public static async void SubscribeToMessages()
     {
         var messages = await firebaseClient
@@ -214,10 +226,9 @@ public class AsynchronousSocketListener
 
         initialMessageCount = messages.Count;
 
-        Console.WriteLine(initialMessageCount + " Message Count");
-
         var observable = firebaseClient
               .Child("Chat")
+              .OrderByKey()
               .AsObservable<ChatMessage>()
               .Subscribe(d => addAndDisplayMessages(d.Object));
     }
@@ -234,13 +245,6 @@ public class AsynchronousSocketListener
 
         if (allMessagesList.Count == initialMessageCount)
         {
-            foreach (var message in allMessagesList)
-            {
-                Console.WriteLine(message.userMessage);
-                Console.WriteLine("MESSAGE ABOVE");
-                Console.WriteLine("------------------------");
-            }
-
             string messageJSON = JsonConvert.SerializeObject(allMessagesList, Formatting.Indented);
 
             SendAllMessages(allConnectedDevices,messageJSON);
@@ -254,10 +258,17 @@ public class AsynchronousSocketListener
             {
                  byte[] byteData = Encoding.ASCII.GetBytes(messageJSON);
 
-                //Console.WriteLine(Encoding.ASCII.GetString(byteData) + " Data sent CUSTOM");
 
+            try
+            {
                 currentHandler.BeginSend(byteData, 0, byteData.Length, 0,
                     new AsyncCallback(SendCallback), currentHandler);
+            }
+            catch(SocketException e)
+            {
+                Console.WriteLine(e.Message.ToString());
+            }
+
         }
     }
 
@@ -275,8 +286,24 @@ public class AsynchronousSocketListener
         }
     }
 
+    public static async void uploadMessage(Socket handler, ChatMessageForUpload receivedUserMessage)
+    {
+        long currentTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+        string messageID = currentTime.ToString();
+
+        await firebaseClient.Child("Chat")
+            .Child(messageID)
+            .PutAsync(receivedUserMessage);
+
+        //Send(handler, "Message Sent!");
+    }
+
     public static async void addUser(Socket handler, UserRegisterData receivedUserRegister)
     {
+
+        addToListOfConnectedDevices(handler);
+
         await firebaseClient.Child("Users")
             .Child(receivedUserRegister.userName)
             .PutAsync(receivedUserRegister);
@@ -321,6 +348,10 @@ public class AsynchronousSocketListener
         {
             checkUserValidity(handler, receivedUserLogin);
         }
+        else
+        {
+            Send(handler, "User doesn't exist!");
+        }
     }
 
     public static void checkUserValidity(Socket handler, UserLoginData receivedUserLogin)
@@ -331,6 +362,7 @@ public class AsynchronousSocketListener
             if (currentUser.userName == receivedUserLogin.userName &&
                 currentUser.userPassword == receivedUserLogin.userPassword)
             {
+                addToListOfConnectedDevices(handler);
                 loggedIn = true;
                 Send(handler, "Login successful!");
             }
@@ -359,6 +391,12 @@ public class UserLoginData
 public class ChatMessage
 {
     public string eventName { get; set; }
+    public string userName { get; set; }
+    public string userMessage { get; set; }
+}
+
+public class ChatMessageForUpload
+{
     public string userName { get; set; }
     public string userMessage { get; set; }
 }
