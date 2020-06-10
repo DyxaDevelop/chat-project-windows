@@ -87,9 +87,16 @@ namespace LogInForm
             MessageBox.Show(message);
         }
 
-        public void logIntoChat()
+        public void logIntoChatUser()
         {
-            Messager chatForm = new Messager("null", userNickname);
+            Messager chatForm = new Messager("null", userNickname, false);
+            chatForm.Show();
+            Hide();
+        }
+
+        public void logIntoChatAdmin()
+        {
+            Messager chatForm = new Messager("null", userNickname, true);
             chatForm.Show();
             Hide();
         }

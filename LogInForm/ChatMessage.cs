@@ -9,6 +9,7 @@ namespace LogInForm
     public class ChatMessage
     {
         public string eventName { get; set; }
+        public string timeStamp { get; set; }
         public string userName { get; set; }
         public string userMessage { get; set; }
     }

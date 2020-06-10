@@ -46,8 +46,7 @@ namespace LogInForm
 
         private void MessageLabel_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Clicked on USERNAME " + userName);
-            MessageBox.Show("Clicked on USERMESSAGE" + userMessage);
+
         }
     }
 }

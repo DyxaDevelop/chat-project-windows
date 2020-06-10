@@ -10,10 +10,13 @@ using System.Windows.Forms;
 
 namespace LogInForm
 {
-    public partial class ChatListItem : UserControl
+    public partial class ChatListItemAdmin : UserControl
     {
-        public ChatListItem()
+        Messager currentChatForm;
+
+        public ChatListItemAdmin(Messager currentChatForm)
         {
+            this.currentChatForm = currentChatForm;
             InitializeComponent();
         }
 
@@ -22,6 +25,7 @@ namespace LogInForm
 
         private string userName;
         private string userMessage;
+        private string messageTimeStamp;
 
         [Category("Custom Props")]
         public string UserName
@@ -37,6 +41,13 @@ namespace LogInForm
             set { userMessage = value; MessageLabel.Text = value; }
         }
 
+        [Category("Custom Props")]
+        public string MessageTimeStamp
+        {
+            get { return messageTimeStamp; }
+            set { messageTimeStamp = value; }
+        }
+
         #endregion
 
         private void UserNameLabel_Click(object sender, EventArgs e)
@@ -46,8 +57,19 @@ namespace LogInForm
 
         private void MessageLabel_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Clicked on USERNAME " + userName);
-            MessageBox.Show("Clicked on USERMESSAGE" + userMessage);
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DeleteButton_Click(object sender, EventArgs e)
+        {
+            var asyncClientEvent = new AsyncClientEvent { };
+
+            asyncClientEvent.StartClientWithChatFormDeleteMessage(userName, messageTimeStamp, "Delete_Message", currentChatForm);
         }
     }
 }

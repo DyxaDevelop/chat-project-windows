@@ -93,7 +93,7 @@ namespace LogInForm
 
         public void logIntoChat() 
         {
-            Messager chatForm = new Messager(userID, userNickname);
+            Messager chatForm = new Messager(userID, userNickname, false);
             chatForm.Show();
             Hide();
 

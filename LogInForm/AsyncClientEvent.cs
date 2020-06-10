@@ -58,6 +58,13 @@ namespace LogInForm
             StartClient(userName, userPassword, eventName, userID);
         }
 
+        public void StartClientWithChatFormDeleteMessage(String userName, String messageTimeStamp, String eventName, Messager chatForm)
+        {
+            currentChatForm = chatForm;
+            extraData = messageTimeStamp;
+            StartClient(userName, "null", eventName, "null");
+        }
+
         public void StartClient(String userName, String userPassword, String eventName, string userID)
         {
 
@@ -81,7 +88,8 @@ namespace LogInForm
                 Send(client, eventName, userName, userPassword, userID);
                 sendDone.WaitOne();
 
-                if(eventName != "Send_Message")
+                if(eventName != "Send_Message" ||
+                   eventName != "Delete_Message")
                 {
                     // Receive the response from the remote device.  
                     Receive(client);
@@ -104,7 +112,12 @@ namespace LogInForm
 
                         case "Login successful!":
                             currentLoginForm.showMessageBox(response);
-                            currentLoginForm.logIntoChat();
+                            currentLoginForm.logIntoChatUser();
+                            break;
+
+                        case "Admin Login successful!":
+                            currentLoginForm.showMessageBox(response);
+                            currentLoginForm.logIntoChatAdmin();
                             break;
 
                         case "Data incorrect!":
@@ -196,6 +209,7 @@ namespace LogInForm
                     if(response.Equals("User created!") ||
                        response.Equals("User already exists!") ||
                        response.Equals("Login successful!") ||
+                       response.Equals("Admin Login successful!") ||
                        response.Equals("Data incorrect!") ||
                        response.Equals("User doesn't exist!") ||
                        response.Equals("Some Messages") ||
@@ -236,9 +250,11 @@ namespace LogInForm
 
             if(eventName.Equals("Send_Message"))
             {
+                Console.WriteLine("TRYING TO SEND: " + extraData);
                 var messageData = new ChatMessage
                 {
                     eventName = eventName,
+                    timeStamp = "null",
                     userName = userName,
                     userMessage = extraData
                 };
@@ -247,15 +263,32 @@ namespace LogInForm
             }
             else
             {
-                var userData = new UserRegisterData
-                {
-                    eventName = eventName,
-                    userID = userID,
-                    userName = userName,
-                    userPassword = userPassword
-                };
 
-                json = JsonConvert.SerializeObject(userData, Formatting.Indented);
+                if (eventName.Equals("Delete_Message"))
+                {
+                    var deleteMessageData = new ChatMessage
+                    {
+                        eventName = eventName,
+                        timeStamp = extraData,
+                        userName = userName,
+                        userMessage = extraData
+                    };
+
+                    json = JsonConvert.SerializeObject(deleteMessageData, Formatting.Indented);
+                }
+                else
+                {
+                    var userData = new UserRegisterData
+                    {
+                        eventName = eventName,
+                        userID = userID,
+                        userName = userName,
+                        userPassword = userPassword
+                    };
+
+                    json = JsonConvert.SerializeObject(userData, Formatting.Indented);
+                }
+
             }          
 
             byte[] byteData = Encoding.ASCII.GetBytes(json);

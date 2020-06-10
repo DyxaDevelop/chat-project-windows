@@ -100,6 +100,12 @@
     <Compile Include="ChatForm.Designer.cs">
       <DependentUpon>ChatForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ChatListItemAdmin.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ChatListItemAdmin.Designer.cs">
+      <DependentUpon>ChatListItemAdmin.cs</DependentUpon>
+    </Compile>
     <Compile Include="ChatListItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -125,6 +131,9 @@
     <Compile Include="UserRegisterData.cs" />
     <EmbeddedResource Include="ChatForm.resx">
       <DependentUpon>ChatForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChatListItemAdmin.resx">
+      <DependentUpon>ChatListItemAdmin.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ChatListItem.resx">
       <DependentUpon>ChatListItem.cs</DependentUpon>

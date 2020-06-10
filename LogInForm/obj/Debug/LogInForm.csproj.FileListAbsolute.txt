@@ -57,3 +57,4 @@ F:\Chat-Project-Windows\LogInForm\bin\Debug\Newtonsoft.Json.dll
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.Messager.resources
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.ChatListItem.resources
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.csproj.CoreCompileInputs.cache
+F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.ChatListItemAdmin.resources

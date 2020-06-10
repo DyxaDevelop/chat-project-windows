@@ -17,12 +17,14 @@ namespace LogInForm
     {
         public String userID;
         public String userName;
+        public bool isAdmin;
 
-        public Messager(String userID, String userName)
+        public Messager(String userID, String userName, bool isAdmin)
         {
             InitializeComponent();
             this.userID = userID;
             this.userName = userName;
+            this.isAdmin = isAdmin;
         }
 
         private void ChatForm_Load(object sender, EventArgs e)
@@ -64,6 +66,8 @@ namespace LogInForm
 
         public void populateChat(List<ChatMessage> chatMessages)
         {
+            if(isAdmin == false)
+            {
                 ChatListItem[] chatListItems = new ChatListItem[chatMessages.Count];
 
                 for (int i = 0; i < chatListItems.Length; i++)
@@ -72,14 +76,31 @@ namespace LogInForm
                     chatListItems[i].UserName = chatMessages[i].userName;
                     chatListItems[i].UserMessage = chatMessages[i].userMessage;
 
-                    UpdateFlowLayoutPanel(chatListItems[i], i, chatListItems.Length - 1);
+                    UpdateFlowLayoutPanel(chatListItems[i], i, chatListItems.Length - 1, this.isAdmin);
                 }
+            }
+
+            if(isAdmin == true)
+            {
+                ChatListItemAdmin[] chatListItemsAdmin = new ChatListItemAdmin[chatMessages.Count];
+
+                for (int i = 0; i < chatListItemsAdmin.Length; i++)
+                {
+                    chatListItemsAdmin[i] = new ChatListItemAdmin(this);
+                    chatListItemsAdmin[i].UserName = chatMessages[i].userName;
+                    chatListItemsAdmin[i].UserMessage = chatMessages[i].userMessage;
+                    chatListItemsAdmin[i].MessageTimeStamp = chatMessages[i].timeStamp;
+
+                    UpdateFlowLayoutPanel(chatListItemsAdmin[i], i, chatListItemsAdmin.Length - 1, this.isAdmin);
+                }
+            }
 
 
         }
 
-        private void UpdateFlowLayoutPanel(ChatListItem currentChatMessage, int currentItemCount, int listSize)
+        private void UpdateFlowLayoutPanel(Object currentChatMessageObject, int currentItemCount, int listSize, bool isAdmin)
         {
+
 
             Thread FlowLayoutThread = new Thread(delegate () {
                 if (flowLayoutPanel1.InvokeRequired)
@@ -97,12 +118,29 @@ namespace LogInForm
                                 flowLayoutPanel1.Controls.Clear();
                             }
 
-                            flowLayoutPanel1.Controls.Add(currentChatMessage);
+                                if (isAdmin == true)
+                                {
+                                    ChatListItemAdmin currentChatMessageAdmin = (ChatListItemAdmin)currentChatMessageObject;
 
-                            if(currentItemCount == listSize)
-                            {
-                                flowLayoutPanel1.ScrollControlIntoView(currentChatMessage);
-                            }
+                                        flowLayoutPanel1.Controls.Add(currentChatMessageAdmin);
+
+                                        if (currentItemCount == listSize)
+                                        {
+                                            flowLayoutPanel1.ScrollControlIntoView(currentChatMessageAdmin);
+                                        }
+                                }
+                                else
+                                {
+                                    ChatListItem currentChatMessageUser = (ChatListItem)currentChatMessageObject;
+
+                                        flowLayoutPanel1.Controls.Add(currentChatMessageUser);
+
+                                        if (currentItemCount == listSize)
+                                        {
+                                            flowLayoutPanel1.ScrollControlIntoView(currentChatMessageUser);
+                                        }
+                                }
+
                         }
                     }));
                 }

@@ -178,6 +178,14 @@ public class AsynchronousSocketListener
 
                 uploadMessage(handler, convertedUserMessage);
             }
+
+            if (eventNameReceived.Equals("Delete_Message"))
+            {
+                ChatMessage receivedDeleteMessage = JsonConvert.DeserializeObject<ChatMessage>(content);
+
+                deleteMessage(handler, receivedDeleteMessage);
+            }
+
         }
     }
 
@@ -230,22 +238,49 @@ public class AsynchronousSocketListener
               .Child("Chat")
               .OrderByKey()
               .AsObservable<ChatMessage>()
-              .Subscribe(d => addAndDisplayMessages(d.Object));
+              .Subscribe(d => getCurrentMessageCount(d.Object, d.Key));
     }
 
-    public static void addAndDisplayMessages(ChatMessage d)
+    public static async void getCurrentMessageCount(ChatMessage message, string messageTimeStamp)
     {
-        if (firstCheck != true)
-        {
-            initialMessageCount++;
-        }
+        var messages = await firebaseClient
+            .Child("Chat")
+            .OnceAsync<ChatMessage>();
 
-        d.eventName = "ChatMessage";
-        allMessagesList.Add(d);
+        int currentMessageCount = messages.Count;
+
+        addAndDisplayMessages(message, currentMessageCount, messageTimeStamp);
+    }
+
+    public static void addAndDisplayMessages(ChatMessage currentMessage, int currentMessageCount, string messageTimeStamp)
+    {
+
+        currentMessage.eventName = "ChatMessage";
+        if(currentMessageCount < allMessagesList.Count)
+        {
+            allMessagesList.Remove(currentMessage);
+
+            if (firstCheck != true)
+            {
+                initialMessageCount--;
+            }
+        }
+        if(currentMessageCount > allMessagesList.Count)
+        {
+            Console.WriteLine("TIMESTAMP: " + messageTimeStamp + "     ----------------------");
+            currentMessage.timeStamp = messageTimeStamp;
+            allMessagesList.Add(currentMessage);
+
+            if (firstCheck != true)
+            {
+                initialMessageCount++;
+            }
+        }
 
         if (allMessagesList.Count == initialMessageCount)
         {
             string messageJSON = JsonConvert.SerializeObject(allMessagesList, Formatting.Indented);
+            Console.WriteLine(messageJSON);
 
             SendAllMessages(allConnectedDevices,messageJSON);
             firstCheck = false;
@@ -297,6 +332,15 @@ public class AsynchronousSocketListener
             .PutAsync(receivedUserMessage);
 
         //Send(handler, "Message Sent!");
+    }
+
+    public static async void deleteMessage(Socket handler, ChatMessage receivedDeleteMessage)
+    {
+        Console.WriteLine("DELETING WITH TIMESTAMP: " + receivedDeleteMessage.timeStamp);
+        await firebaseClient
+          .Child("Chat")
+          .Child(receivedDeleteMessage.timeStamp)
+          .DeleteAsync();
     }
 
     public static async void addUser(Socket handler, UserRegisterData receivedUserRegister)
@@ -362,9 +406,21 @@ public class AsynchronousSocketListener
             if (currentUser.userName == receivedUserLogin.userName &&
                 currentUser.userPassword == receivedUserLogin.userPassword)
             {
-                addToListOfConnectedDevices(handler);
-                loggedIn = true;
-                Send(handler, "Login successful!");
+                if(receivedUserLogin.userName == "admin" &&
+                   receivedUserLogin.userPassword == "123123")
+                {
+                    addToListOfConnectedDevices(handler);
+                    loggedIn = true;
+                    Send(handler, "Admin Login successful!");
+                }
+                else
+                {
+                    addToListOfConnectedDevices(handler);
+                    loggedIn = true;
+                    Send(handler, "Login successful!");
+                }
+
+
             }
         }
 
@@ -391,6 +447,7 @@ public class UserLoginData
 public class ChatMessage
 {
     public string eventName { get; set; }
+    public string timeStamp { get; set; }
     public string userName { get; set; }
     public string userMessage { get; set; }
 }
