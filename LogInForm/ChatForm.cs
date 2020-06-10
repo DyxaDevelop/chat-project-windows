@@ -30,6 +30,7 @@ namespace LogInForm
         private void ChatForm_Load(object sender, EventArgs e)
         {
             getMessages();
+            WelcomeLabel.Text += userName;
         }
 
         private void materialRaisedButton1_Click(object sender, EventArgs e)
@@ -68,13 +69,18 @@ namespace LogInForm
         {
             if(isAdmin == false)
             {
-                ChatListItem[] chatListItems = new ChatListItem[chatMessages.Count];
+                ChatListItemLayout[] chatListItems = new ChatListItemLayout[chatMessages.Count];
 
                 for (int i = 0; i < chatListItems.Length; i++)
                 {
-                    chatListItems[i] = new ChatListItem();
+                    chatListItems[i] = new ChatListItemLayout();
                     chatListItems[i].UserName = chatMessages[i].userName;
                     chatListItems[i].UserMessage = chatMessages[i].userMessage;
+
+                    if(chatListItems[i].UserName == "admin")
+                    {
+                        chatListItems[i].BackColor = Color.FromArgb(192, 255, 192);
+                    }
 
                     UpdateFlowLayoutPanel(chatListItems[i], i, chatListItems.Length - 1, this.isAdmin);
                 }
@@ -90,6 +96,11 @@ namespace LogInForm
                     chatListItemsAdmin[i].UserName = chatMessages[i].userName;
                     chatListItemsAdmin[i].UserMessage = chatMessages[i].userMessage;
                     chatListItemsAdmin[i].MessageTimeStamp = chatMessages[i].timeStamp;
+
+                    if (chatListItemsAdmin[i].UserName == "admin")
+                    {
+                        chatListItemsAdmin[i].BackColor = Color.FromArgb(192, 255, 192);
+                    }
 
                     UpdateFlowLayoutPanel(chatListItemsAdmin[i], i, chatListItemsAdmin.Length - 1, this.isAdmin);
                 }
@@ -131,7 +142,7 @@ namespace LogInForm
                                 }
                                 else
                                 {
-                                    ChatListItem currentChatMessageUser = (ChatListItem)currentChatMessageObject;
+                                    ChatListItemLayout currentChatMessageUser = (ChatListItemLayout)currentChatMessageObject;
 
                                         flowLayoutPanel1.Controls.Add(currentChatMessageUser);
 
@@ -171,6 +182,19 @@ namespace LogInForm
         private void MessageTextBox_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void LogoutButton_Click(object sender, EventArgs e)
+        {
+            Messager currentForm = this;
+
+            var asyncClientEvent = new AsyncClientEvent { };
+
+            asyncClientEvent.StartClientWithChatFormDisconnect("Disconnect", currentForm);
+
+            Form1 loginForm = new Form1();
+            loginForm.Show();
+            Hide();
         }
     }
 }

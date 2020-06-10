@@ -21,6 +21,8 @@ namespace LogInForm
         static Form2 currentRegisterForm;
         static Messager currentChatForm;
 
+        public static bool isDisconnecting = false;
+
         public static String extraData = "null";
 
         public AsyncClientEvent() { }
@@ -64,6 +66,10 @@ namespace LogInForm
             extraData = messageTimeStamp;
             StartClient(userName, "null", eventName, "null");
         }
+        public void StartClientWithChatFormDisconnect(String eventName, Messager chatForm)
+        {
+            StartClient("null", "null", eventName, "null");
+        }
 
         public void StartClient(String userName, String userPassword, String eventName, string userID)
         {
@@ -89,7 +95,8 @@ namespace LogInForm
                 sendDone.WaitOne();
 
                 if(eventName != "Send_Message" ||
-                   eventName != "Delete_Message")
+                   eventName != "Delete_Message" ||
+                   eventName != "Disconnect")
                 {
                     // Receive the response from the remote device.  
                     Receive(client);
@@ -136,6 +143,12 @@ namespace LogInForm
                             currentLoginForm.showMessageBox(response);
                             break;
                     }
+                }
+
+                if(isDisconnecting == true)
+                {
+                    client.Shutdown(SocketShutdown.Both);
+                    client.Close();
                 }
 
             }
@@ -248,9 +261,63 @@ namespace LogInForm
         {
             string json;
 
-            if(eventName.Equals("Send_Message"))
+
+            switch (eventName)
             {
-                Console.WriteLine("TRYING TO SEND: " + extraData);
+                case "Send_Message":
+
+                    var messageData = new ChatMessage
+                    {
+                        eventName = eventName,
+                        timeStamp = "null",
+                        userName = userName,
+                        userMessage = extraData
+                    };
+
+                    json = JsonConvert.SerializeObject(messageData, Formatting.Indented);
+                    break;
+
+                case "Delete_Message":
+
+                    var deleteMessageData = new ChatMessage
+                    {
+                        eventName = eventName,
+                        timeStamp = extraData,
+                        userName = userName,
+                        userMessage = extraData
+                    };
+
+                    json = JsonConvert.SerializeObject(deleteMessageData, Formatting.Indented);
+                    break;
+
+                case "Disconnect":
+
+                    var disconnectRequestData = new DisconnectRequest
+                    {
+                        eventName = eventName
+                    };
+
+                    json = JsonConvert.SerializeObject(disconnectRequestData, Formatting.Indented);
+                    isDisconnecting = true;
+                    break;
+
+                default:
+                    var userData = new UserRegisterData
+                    {
+                        eventName = eventName,
+                        userID = userID,
+                        userName = userName,
+                        userPassword = userPassword
+                    };
+
+                    json = JsonConvert.SerializeObject(userData, Formatting.Indented);
+                    break;
+
+            }
+
+
+            /*if(eventName.Equals("Send_Message"))
+            {
                 var messageData = new ChatMessage
                 {
                     eventName = eventName,
@@ -278,18 +345,31 @@ namespace LogInForm
                 }
                 else
                 {
-                    var userData = new UserRegisterData
+                    if(eventName.Equals("Disconnect"))
                     {
-                        eventName = eventName,
-                        userID = userID,
-                        userName = userName,
-                        userPassword = userPassword
-                    };
+                        var disconnectRequestData = new DisconnectRequest
+                        {
+                            eventName = eventName
+                        };
 
-                    json = JsonConvert.SerializeObject(userData, Formatting.Indented);
+                        json = JsonConvert.SerializeObject(disconnectRequestData, Formatting.Indented);
+                    }
+                    else
+                    {
+                        var userData = new UserRegisterData
+                        {
+                            eventName = eventName,
+                            userID = userID,
+                            userName = userName,
+                            userPassword = userPassword
+                        };
+
+                        json = JsonConvert.SerializeObject(userData, Formatting.Indented);
+                    }
+
                 }
 
-            }          
+            }*/          
 
             byte[] byteData = Encoding.ASCII.GetBytes(json);
 

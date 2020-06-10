@@ -1,6 +1,6 @@
 ﻿namespace LogInForm
 {
-    partial class ChatListItem
+    partial class ChatListItemLayout
     {
         /// <summary> 
         /// Wymagana zmienna projektanta.
@@ -53,14 +53,14 @@
             this.MessageLabel.Text = "Message";
             this.MessageLabel.Click += new System.EventHandler(this.MessageLabel_Click);
             // 
-            // ChatListItem
+            // ChatListItemLayout
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.HighlightText;
             this.Controls.Add(this.MessageLabel);
             this.Controls.Add(this.UserNameLabel);
-            this.Name = "ChatListItem";
+            this.Name = "ChatListItemLayout";
             this.Size = new System.Drawing.Size(423, 68);
             this.ResumeLayout(false);
 

@@ -107,20 +107,6 @@ public class AsynchronousSocketListener
         state.workSocket = handler;
         handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
             new AsyncCallback(ReadCallback), state);
-
-        /*bool newDevice = true;
-        foreach (Socket currentHandler in allConnectedDevices)
-        {
-            if (currentHandler.LocalEndPoint.Equals(handler.LocalEndPoint))
-            {
-                newDevice = false;
-            }
-        }*/
-
-        //if (newDevice == true)
-        //{
-        //}
-        
     }
 
     public static void ReadCallback(IAsyncResult ar)
@@ -184,6 +170,12 @@ public class AsynchronousSocketListener
                 ChatMessage receivedDeleteMessage = JsonConvert.DeserializeObject<ChatMessage>(content);
 
                 deleteMessage(handler, receivedDeleteMessage);
+            }
+
+            if(eventNameReceived.Equals("Disconnect"))
+            {
+                handler.Shutdown(SocketShutdown.Both);
+                handler.Close();
             }
 
         }
@@ -330,8 +322,6 @@ public class AsynchronousSocketListener
         await firebaseClient.Child("Chat")
             .Child(messageID)
             .PutAsync(receivedUserMessage);
-
-        //Send(handler, "Message Sent!");
     }
 
     public static async void deleteMessage(Socket handler, ChatMessage receivedDeleteMessage)

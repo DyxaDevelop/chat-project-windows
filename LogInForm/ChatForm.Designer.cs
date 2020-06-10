@@ -35,6 +35,8 @@
             this.MessageTextBox = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.LogoutButton = new MaterialSkin.Controls.MaterialRaisedButton();
+            this.WelcomeLabel = new System.Windows.Forms.Label();
             this.materialTabControl1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -120,11 +122,40 @@
             this.flowLayoutPanel1.TabIndex = 3;
             this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
             // 
+            // LogoutButton
+            // 
+            this.LogoutButton.BackColor = System.Drawing.SystemColors.ControlText;
+            this.LogoutButton.Depth = 0;
+            this.LogoutButton.Location = new System.Drawing.Point(378, 28);
+            this.LogoutButton.MouseState = MaterialSkin.MouseState.HOVER;
+            this.LogoutButton.Name = "LogoutButton";
+            this.LogoutButton.Primary = true;
+            this.LogoutButton.Size = new System.Drawing.Size(79, 33);
+            this.LogoutButton.TabIndex = 4;
+            this.LogoutButton.Text = "Logout";
+            this.LogoutButton.UseVisualStyleBackColor = false;
+            this.LogoutButton.Click += new System.EventHandler(this.LogoutButton_Click);
+            // 
+            // WelcomeLabel
+            // 
+            this.WelcomeLabel.AutoSize = true;
+            this.WelcomeLabel.BackColor = System.Drawing.Color.Transparent;
+            this.WelcomeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.WelcomeLabel.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.WelcomeLabel.Location = new System.Drawing.Point(142, 33);
+            this.WelcomeLabel.Name = "WelcomeLabel";
+            this.WelcomeLabel.Size = new System.Drawing.Size(92, 20);
+            this.WelcomeLabel.TabIndex = 5;
+            this.WelcomeLabel.Text = "Welcome, ";
+            this.WelcomeLabel.UseMnemonic = false;
+            // 
             // Messager
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(469, 622);
+            this.Controls.Add(this.WelcomeLabel);
+            this.Controls.Add(this.LogoutButton);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.materialTabControl1);
             this.Name = "Messager";
@@ -134,6 +165,7 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -145,5 +177,7 @@
         private System.Windows.Forms.TextBox MessageTextBox;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private MaterialSkin.Controls.MaterialRaisedButton LogoutButton;
+        private System.Windows.Forms.Label WelcomeLabel;
     }
 }

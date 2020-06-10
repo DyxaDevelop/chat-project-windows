@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace LogInForm
 {
-    public partial class ChatListItem : UserControl
+    public partial class ChatListItemLayout : UserControl
     {
-        public ChatListItem()
+        public ChatListItemLayout()
         {
             InitializeComponent();
         }
