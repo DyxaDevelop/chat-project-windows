@@ -16,26 +16,26 @@ namespace LogInForm
     public partial class Messager : MaterialForm
     {
         public String userID;
-        public String userName;
+        public String currentUserName;
         public bool isAdmin;
 
         public Messager(String userID, String userName, bool isAdmin)
         {
             InitializeComponent();
             this.userID = userID;
-            this.userName = userName;
+            this.currentUserName = userName;
             this.isAdmin = isAdmin;
         }
 
         private void ChatForm_Load(object sender, EventArgs e)
         {
             getMessages();
-            WelcomeLabel.Text += userName;
+            WelcomeLabel.Text += currentUserName;
         }
 
         private void materialRaisedButton1_Click(object sender, EventArgs e)
         {
-            String userMessage = MessageTextBox.Text;
+            String userMessage = MessageTextBox.Text.Trim();
 
 
             if (!String.IsNullOrEmpty(userMessage))
@@ -45,12 +45,12 @@ namespace LogInForm
 
                 var asyncClientEvent = new AsyncClientEvent { };
 
-                asyncClientEvent.StartClientWithChatForm(userName, "null", "Send_Message", userID, currentForm, userMessage);
+                asyncClientEvent.StartClientWithChatForm(currentUserName, "null", "Send_Message", userID, currentForm, userMessage);
 
             }
             else
             {
-                MessageBox.Show("Please fill in all the balnks");
+                MessageBox.Show("Please type in your message");
             }
 
         }
@@ -76,16 +76,22 @@ namespace LogInForm
                     chatListItems[i] = new ChatListItemLayout();
                     chatListItems[i].UserName = chatMessages[i].userName;
                     chatListItems[i].UserMessage = chatMessages[i].userMessage;
-
-                    if(chatListItems[i].UserName == "admin")
+                    if(chatListItems[i].UserName != currentUserName)
                     {
-                        chatListItems[i].BackColor = Color.FromArgb(192, 255, 192);
+                        if (chatListItems[i].UserName == "admin")
+                        {
+                            chatListItems[i].BackColor = Color.FromArgb(192, 255, 192);
+                        }
+                        else
+                        {
+                            chatListItems[i].BackColor = Color.FromArgb(209, 209, 209);
+                        }
                     }
 
                     UpdateFlowLayoutPanel(chatListItems[i], i, chatListItems.Length - 1, this.isAdmin);
                 }
             }
-
+            
             if(isAdmin == true)
             {
                 ChatListItemAdmin[] chatListItemsAdmin = new ChatListItemAdmin[chatMessages.Count];
@@ -97,9 +103,16 @@ namespace LogInForm
                     chatListItemsAdmin[i].UserMessage = chatMessages[i].userMessage;
                     chatListItemsAdmin[i].MessageTimeStamp = chatMessages[i].timeStamp;
 
-                    if (chatListItemsAdmin[i].UserName == "admin")
+                    if (chatListItemsAdmin[i].UserName != currentUserName)
                     {
-                        chatListItemsAdmin[i].BackColor = Color.FromArgb(192, 255, 192);
+                        if (chatListItemsAdmin[i].UserName == "admin")
+                        {
+                            chatListItemsAdmin[i].BackColor = Color.FromArgb(192, 255, 192);
+                        }
+                        else
+                        {
+                            chatListItemsAdmin[i].BackColor = Color.FromArgb(209, 209, 209);
+                        }
                     }
 
                     UpdateFlowLayoutPanel(chatListItemsAdmin[i], i, chatListItemsAdmin.Length - 1, this.isAdmin);
@@ -192,7 +205,7 @@ namespace LogInForm
 
             asyncClientEvent.StartClientWithChatFormDisconnect("Disconnect", currentForm);
 
-            Form1 loginForm = new Form1();
+            LoginForm loginForm = new LoginForm();
             loginForm.Show();
             Hide();
         }

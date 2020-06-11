@@ -29,7 +29,7 @@ public class StateObject
 public class AsynchronousSocketListener
 {
 
-    public static List<UserRegisterData> allUsersList = new List<UserRegisterData>();
+    public static List<UserData> allUsersList = new List<UserData>();
 
     public static List<ChatMessage> allMessagesList = new List<ChatMessage>();
 
@@ -131,7 +131,7 @@ public class AsynchronousSocketListener
             if (eventNameReceived.Equals("Register"))
             {
 
-                UserRegisterData receivedUserRegister = JsonConvert.DeserializeObject<UserRegisterData>(content);
+                UserData receivedUserRegister = JsonConvert.DeserializeObject<UserData>(content);
 
                 checkIfUserExists(handler, receivedUserRegister);
             }
@@ -155,7 +155,7 @@ public class AsynchronousSocketListener
             {
 
                 ChatMessage receivedUserMessage = JsonConvert.DeserializeObject<ChatMessage>(content);
-
+                 
                 ChatMessageForUpload convertedUserMessage = new ChatMessageForUpload
                 {
                     userName = receivedUserMessage.userName,
@@ -220,17 +220,18 @@ public class AsynchronousSocketListener
 
     public static async void SubscribeToMessages()
     {
-        var messages = await firebaseClient
-            .Child("Chat")
-            .OnceAsync<ChatMessage>();
+            var messages = await firebaseClient
+                .Child("Chat")
+                .OnceAsync<ChatMessage>();
 
-        initialMessageCount = messages.Count;
+            initialMessageCount = messages.Count;
 
-        var observable = firebaseClient
-              .Child("Chat")
-              .OrderByKey()
-              .AsObservable<ChatMessage>()
-              .Subscribe(d => getCurrentMessageCount(d.Object, d.Key));
+            var observable = firebaseClient
+                  .Child("Chat")
+                  .OrderByKey()
+                  .AsObservable<ChatMessage>()
+                  .Subscribe(d => getCurrentMessageCount(d.Object, d.Key));
+
     }
 
     public static async void getCurrentMessageCount(ChatMessage message, string messageTimeStamp)
@@ -242,6 +243,7 @@ public class AsynchronousSocketListener
         int currentMessageCount = messages.Count;
 
         addAndDisplayMessages(message, currentMessageCount, messageTimeStamp);
+        
     }
 
     public static void addAndDisplayMessages(ChatMessage currentMessage, int currentMessageCount, string messageTimeStamp)
@@ -259,7 +261,6 @@ public class AsynchronousSocketListener
         }
         if(currentMessageCount > allMessagesList.Count)
         {
-            Console.WriteLine("TIMESTAMP: " + messageTimeStamp + "     ----------------------");
             currentMessage.timeStamp = messageTimeStamp;
             allMessagesList.Add(currentMessage);
 
@@ -272,7 +273,8 @@ public class AsynchronousSocketListener
         if (allMessagesList.Count == initialMessageCount)
         {
             string messageJSON = JsonConvert.SerializeObject(allMessagesList, Formatting.Indented);
-            Console.WriteLine(messageJSON);
+
+            Console.WriteLine(displayAllUserMessageCount(allMessagesList));
 
             SendAllMessages(allConnectedDevices,messageJSON);
             firstCheck = false;
@@ -301,11 +303,10 @@ public class AsynchronousSocketListener
 
     public static async void getAllUsers()
     {
-
         var users = await firebaseClient
             .Child("Users")
             .OrderByKey()
-            .OnceAsync<UserRegisterData>();
+            .OnceAsync<UserData>();
 
         foreach (var user in users)
         {
@@ -326,14 +327,13 @@ public class AsynchronousSocketListener
 
     public static async void deleteMessage(Socket handler, ChatMessage receivedDeleteMessage)
     {
-        Console.WriteLine("DELETING WITH TIMESTAMP: " + receivedDeleteMessage.timeStamp);
         await firebaseClient
           .Child("Chat")
           .Child(receivedDeleteMessage.timeStamp)
           .DeleteAsync();
     }
 
-    public static async void addUser(Socket handler, UserRegisterData receivedUserRegister)
+    public static async void addUser(Socket handler, UserData receivedUserRegister)
     {
 
         addToListOfConnectedDevices(handler);
@@ -347,7 +347,7 @@ public class AsynchronousSocketListener
         Send(handler, "User created!");
     }
 
-    public static void checkIfUserExists(Socket handler, UserRegisterData receivedUserRegister)
+    public static void checkIfUserExists(Socket handler, UserData receivedUserRegister)
     {
         bool userExists = false;
 
@@ -364,6 +364,31 @@ public class AsynchronousSocketListener
         {
             addUser(handler, receivedUserRegister);
         }
+    }
+
+    public static string displayAllUserMessageCount(List<ChatMessage> messagesList)
+    {
+        int count = 0;
+        string allUsersCount = "";
+
+        foreach(var message in messagesList)
+        {
+            if(!allUsersCount.Contains(message.userName))
+            {
+                foreach (var current in messagesList)
+                {
+                    if (current.userName == message.userName)
+                    {
+                        count++;
+                    }
+                }
+
+                allUsersCount = allUsersCount + message.userName + ": " + count + " Messages; ";
+                count = 0;
+            }
+        }
+
+        return allUsersCount;
     }
 
     public static void attemptUserLogin(Socket handler, UserLoginData receivedUserLogin)
@@ -416,12 +441,12 @@ public class AsynchronousSocketListener
 
         if (loggedIn == false)
         {
-            Send(handler, "Data incorrect!");
+            Send(handler, "Password incorrect!");
         }
     }
 
 }
-public class UserRegisterData
+public class UserData
 {
     public string userID { get; set; }
     public string userName { get; set; }

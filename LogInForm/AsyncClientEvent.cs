@@ -15,10 +15,13 @@ using System.Windows.Forms;
 
 namespace LogInForm
 {
-    internal class AsyncClientEvent
+    public class AsyncClientEvent
     {
-        static Form1 currentLoginForm;
-        static Form2 currentRegisterForm;
+        /// <summary>
+        /// W klasie ASYNCCLIENTEVENT
+        /// </summary>
+        static LoginForm currentLoginForm;
+        static RegisterForm currentRegisterForm;
         static Messager currentChatForm;
 
         public static bool isDisconnecting = false;
@@ -41,13 +44,13 @@ namespace LogInForm
         // The response from the remote device.  
         private static String response = String.Empty;
 
-        public void StartClientWithForm1(String userName, String userPassword, String eventName, string userID, Form1 form1)
+        public void StartClientWithLoginForm(String userName, String userPassword, String eventName, string userID, LoginForm form1)
         {
             currentLoginForm = form1;
             StartClient(userName, userPassword, eventName, userID);
         }
 
-        public void StartClientWithForm2(String userName, String userPassword, String eventName, string userID, Form2 form2)
+        public void StartClientWithRegisterForm(String userName, String userPassword, String eventName, string userID, RegisterForm form2)
         {
             currentRegisterForm = form2;
             StartClient(userName, userPassword, eventName, userID);
@@ -127,7 +130,7 @@ namespace LogInForm
                             currentLoginForm.logIntoChatAdmin();
                             break;
 
-                        case "Data incorrect!":
+                        case "Password incorrect!":
                             currentLoginForm.showMessageBox(response);
                             break;
 
@@ -158,8 +161,16 @@ namespace LogInForm
             }
         }
 
+        /// <summary>
+        /// PRZED CONNECT CALLBACK
+        /// </summary>
+
         private static void ConnectCallback(IAsyncResult ar)
         {
+
+            /// <summary>
+            /// W CONNECT CALLBACK
+            /// </summary>
             try
             {
                 // Retrieve the socket from the state object.  
@@ -223,7 +234,7 @@ namespace LogInForm
                        response.Equals("User already exists!") ||
                        response.Equals("Login successful!") ||
                        response.Equals("Admin Login successful!") ||
-                       response.Equals("Data incorrect!") ||
+                       response.Equals("Password incorrect!") ||
                        response.Equals("User doesn't exist!") ||
                        response.Equals("Some Messages") ||
                        response.Equals("Message Sent!") ||
@@ -302,7 +313,7 @@ namespace LogInForm
                     break;
 
                 default:
-                    var userData = new UserRegisterData
+                    var userData = new UserData
                     {
                         eventName = eventName,
                         userID = userID,
@@ -313,63 +324,7 @@ namespace LogInForm
                     json = JsonConvert.SerializeObject(userData, Formatting.Indented);
                     break;
 
-            }
-
-
-            /*if(eventName.Equals("Send_Message"))
-            {
-                var messageData = new ChatMessage
-                {
-                    eventName = eventName,
-                    timeStamp = "null",
-                    userName = userName,
-                    userMessage = extraData
-                };
-
-                json = JsonConvert.SerializeObject(messageData, Formatting.Indented);
-            }
-            else
-            {
-
-                if (eventName.Equals("Delete_Message"))
-                {
-                    var deleteMessageData = new ChatMessage
-                    {
-                        eventName = eventName,
-                        timeStamp = extraData,
-                        userName = userName,
-                        userMessage = extraData
-                    };
-
-                    json = JsonConvert.SerializeObject(deleteMessageData, Formatting.Indented);
-                }
-                else
-                {
-                    if(eventName.Equals("Disconnect"))
-                    {
-                        var disconnectRequestData = new DisconnectRequest
-                        {
-                            eventName = eventName
-                        };
-
-                        json = JsonConvert.SerializeObject(disconnectRequestData, Formatting.Indented);
-                    }
-                    else
-                    {
-                        var userData = new UserRegisterData
-                        {
-                            eventName = eventName,
-                            userID = userID,
-                            userName = userName,
-                            userPassword = userPassword
-                        };
-
-                        json = JsonConvert.SerializeObject(userData, Formatting.Indented);
-                    }
-
-                }
-
-            }*/          
+            }       
 
             byte[] byteData = Encoding.ASCII.GetBytes(json);
 
@@ -424,6 +379,9 @@ namespace LogInForm
     [Serializable]
     public class Status
     {
+        /// <summary>
+        /// KLASA STATUS
+        /// </summary>
         [NonSerialized]
         public Socket Socket;
         [NonSerialized]
@@ -432,22 +390,5 @@ namespace LogInForm
         public byte[] buffer = new byte[1024];
 
         public string msg; 
-        public byte[] Serialize()
-        {
-            BinaryFormatter bin = new BinaryFormatter();
-            MemoryStream mem = new MemoryStream();
-            bin.Serialize(mem, this);
-            return mem.GetBuffer();
-        }
-
-        public Status DeSerialize()
-        {
-            byte[] dataBuffer = TransmissionBuffer.ToArray();
-            BinaryFormatter bin = new BinaryFormatter();
-            MemoryStream mem = new MemoryStream();
-            mem.Write(dataBuffer, 0, dataBuffer.Length);
-            mem.Seek(0, 0);
-            return (Status)bin.Deserialize(mem);
-        }
     }
 }

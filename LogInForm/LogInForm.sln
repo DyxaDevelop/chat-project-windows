@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogInForm", "LogInForm.csproj", "{FEB83C03-0A27-461C-8397-E5014540D1F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginFormTests", "..\LoginFormTests\LoginFormTests.csproj", "{F4035597-66FE-4590-B0E6-C42DBF3360EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{FEB83C03-0A27-461C-8397-E5014540D1F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FEB83C03-0A27-461C-8397-E5014540D1F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FEB83C03-0A27-461C-8397-E5014540D1F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4035597-66FE-4590-B0E6-C42DBF3360EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4035597-66FE-4590-B0E6-C42DBF3360EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4035597-66FE-4590-B0E6-C42DBF3360EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4035597-66FE-4590-B0E6-C42DBF3360EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -45,9 +45,6 @@ F:\Chat-Project-Windows\LogInForm\bin\Debug\LogInForm.exe.config
 F:\Chat-Project-Windows\LogInForm\bin\Debug\LogInForm.exe
 F:\Chat-Project-Windows\LogInForm\bin\Debug\LogInForm.pdb
 F:\Chat-Project-Windows\LogInForm\bin\Debug\Newtonsoft.Json.xml
-F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.csprojAssemblyReference.cache
-F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.Form1.resources
-F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.Form2.resources
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.Properties.Resources.resources
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.csproj.GenerateResource.cache
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.csproj.CopyComplete
@@ -58,3 +55,6 @@ F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.Messager.resources
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.csproj.CoreCompileInputs.cache
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.ChatListItemAdmin.resources
 F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.ChatListItemLayout.resources
+F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.LoginForm.resources
+F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.RegisterForm.resources
+F:\Chat-Project-Windows\LogInForm\obj\Debug\LogInForm.csprojAssemblyReference.cache
