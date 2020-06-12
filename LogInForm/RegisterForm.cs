@@ -29,7 +29,7 @@ namespace LogInForm
 
         private void Form2_Load(object sender, EventArgs e)
         {
-           
+
 
         }
 
@@ -39,6 +39,14 @@ namespace LogInForm
             form1.Show();
             Hide();
         }
+
+
+
+        /// <summary>
+        /// Performs all the necessary checks to the data,
+        /// validating the length of them, and sends a request to the server
+        /// through the AsyncClientEvent class;
+        /// </summary>
 
         private void materialRaisedButton1_Click(object sender, EventArgs e)
         {
@@ -55,7 +63,7 @@ namespace LogInForm
             if (!String.IsNullOrEmpty(userNickname) && !String.IsNullOrEmpty(userPassword))
             {
 
-                if(userPassword.Length < 6)
+                if (userPassword.Length < 6)
                 {
                     MessageBox.Show("The password must be at least 6 characters.");
                 }
@@ -69,7 +77,7 @@ namespace LogInForm
                 }
 
             }
-            else 
+            else
             {
                 MessageBox.Show("Please fill in all the balnks");
             }
@@ -77,12 +85,18 @@ namespace LogInForm
 
         }
 
-        public void showMessageBox(String message) {
+        public void showMessageBox(String message)
+        {
 
             MessageBox.Show(message);
         }
 
-        public void logIntoChat() 
+
+        /// <summary>
+        /// Opens the Chat Form as a user, creating a new instance of it;
+        /// </summary>
+
+        public void logIntoChat()
         {
             Messager chatForm = new Messager(userID, userNickname, false);
             chatForm.Show();

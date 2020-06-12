@@ -17,9 +17,11 @@ namespace LogInForm
 {
     public class AsyncClientEvent
     {
+
         /// <summary>
-        /// W klasie ASYNCCLIENTEVENT
+        /// Defines all the necessary variables and fields;
         /// </summary>
+
         static LoginForm currentLoginForm;
         static RegisterForm currentRegisterForm;
         static Messager currentChatForm;
@@ -43,6 +45,13 @@ namespace LogInForm
 
         // The response from the remote device.  
         private static String response = String.Empty;
+
+
+        /// <summary>
+        /// All the different methods available, in order to start the client
+        /// from all different forms in the app, and in order to send different
+        /// requests to the server, passing the necessary data to them
+        /// </summary>
 
         public void StartClientWithLoginForm(String userName, String userPassword, String eventName, string userID, LoginForm form1)
         {
@@ -77,7 +86,11 @@ namespace LogInForm
         public void StartClient(String userName, String userPassword, String eventName, string userID)
         {
 
-            // Connect to a remote device.  
+
+            /// <summary>
+            /// Connects to the remote server,
+            /// meaning to the server
+            /// </summary>
             try
             {
                 IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
@@ -97,7 +110,14 @@ namespace LogInForm
                 Send(client, eventName, userName, userPassword, userID);
                 sendDone.WaitOne();
 
-                if(eventName != "Send_Message" ||
+
+                /// <summary>
+                /// Determines, whether the program should listen to some kind of respone from the server,
+                /// or just move on without expecting any response;
+                /// This depends on the type of request sent by the client
+                /// </summary>
+
+                if (eventName != "Send_Message" ||
                    eventName != "Delete_Message" ||
                    eventName != "Disconnect")
                 {
@@ -148,7 +168,7 @@ namespace LogInForm
                     }
                 }
 
-                if(isDisconnecting == true)
+                if (isDisconnecting == true)
                 {
                     client.Shutdown(SocketShutdown.Both);
                     client.Close();
@@ -161,16 +181,8 @@ namespace LogInForm
             }
         }
 
-        /// <summary>
-        /// PRZED CONNECT CALLBACK
-        /// </summary>
-
         private static void ConnectCallback(IAsyncResult ar)
         {
-
-            /// <summary>
-            /// W CONNECT CALLBACK
-            /// </summary>
             try
             {
                 // Retrieve the socket from the state object.  
@@ -190,6 +202,12 @@ namespace LogInForm
                 Console.WriteLine(e.ToString());
             }
         }
+
+
+        /// <summary>
+        /// Receive and ReceiveCallBack are used to receive, decode, and handle the data
+        /// received from the server as a response to the request from the client;
+        /// </summary>
 
         private static void Receive(Socket client)
         {
@@ -230,31 +248,31 @@ namespace LogInForm
                     response = state.sb.ToString();
 
                 }
-                    if(response.Equals("User created!") ||
-                       response.Equals("User already exists!") ||
-                       response.Equals("Login successful!") ||
-                       response.Equals("Admin Login successful!") ||
-                       response.Equals("Password incorrect!") ||
-                       response.Equals("User doesn't exist!") ||
-                       response.Equals("Some Messages") ||
-                       response.Equals("Message Sent!") ||
-                       isValidJSON(response) == true)
+                if (response.Equals("User created!") ||
+                   response.Equals("User already exists!") ||
+                   response.Equals("Login successful!") ||
+                   response.Equals("Admin Login successful!") ||
+                   response.Equals("Password incorrect!") ||
+                   response.Equals("User doesn't exist!") ||
+                   response.Equals("Some Messages") ||
+                   response.Equals("Message Sent!") ||
+                   isValidJSON(response) == true)
+                {
+                    // All the data has arrived; put it in response.  
+
+                    if (isValidJSON(response) == true)
                     {
-                         // All the data has arrived; put it in response.  
+                        List<ChatMessage> receivedChatMessageList = JsonConvert.DeserializeObject<List<ChatMessage>>(response);
+                        currentChatForm.populateChat(receivedChatMessageList);
+                    }
 
-                            if(isValidJSON(response) == true)
-                                {
-                                    List<ChatMessage> receivedChatMessageList = JsonConvert.DeserializeObject<List<ChatMessage>>(response);
-                                    currentChatForm.populateChat(receivedChatMessageList);
-                                }
-                            
-                         // Signal that all bytes have been received.
-                            state.sb.Clear();
-                            receiveDone.Set();
+                    // Signal that all bytes have been received.
+                    state.sb.Clear();
+                    receiveDone.Set();
 
-                            Receive(client);
+                    Receive(client);
                 }
-                    else
+                else
                 {
                     // Get the rest of the data.  
                     client.BeginReceive(state.buffer, 0, ClientStateObject.BufferSize, 0,
@@ -267,6 +285,13 @@ namespace LogInForm
                 Console.WriteLine(e.ToString() + "Exception");
             }
         }
+
+
+        /// <summary>
+        /// Sends the data to the server, encoding it into ASCII,
+        /// and encapsulating into the needed class, and that depends
+        /// on the type of request, that is being sent to the server
+        /// </summary>
 
         private static void Send(Socket client, String eventName, String userName, String userPassword, String userID)
         {
@@ -324,7 +349,7 @@ namespace LogInForm
                     json = JsonConvert.SerializeObject(userData, Formatting.Indented);
                     break;
 
-            }       
+            }
 
             byte[] byteData = Encoding.ASCII.GetBytes(json);
 
@@ -332,6 +357,12 @@ namespace LogInForm
             client.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(SendCallback), client);
         }
+
+
+        /// <summary>
+        /// Tests and displays the actual amount of
+        /// data (bytes) that was sent to the server;
+        /// </summabry>
 
         private static void SendCallback(IAsyncResult ar)
         {
@@ -353,35 +384,39 @@ namespace LogInForm
             }
         }
 
+
+        /// <summary>
+        /// Determines, whether the received string
+        /// is a valid, readable JSON, that we will be able to read data from;
+        /// </summary>
+
         public static bool isValidJSON(String json)
         {
             json = json.Trim();
 
-                try
-                {
-                    var obj = JToken.Parse(json);
-                    return true;
-                }
-                catch (JsonReaderException e)
-                {
-                    Console.WriteLine(e.Message);
-                    return false;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                    return false;
-                }
+            try
+            {
+                var obj = JToken.Parse(json);
+                return true;
+            }
+            catch (JsonReaderException e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return false;
+            }
         }
 
 
     }
+
     [Serializable]
     public class Status
     {
-        /// <summary>
-        /// KLASA STATUS
-        /// </summary>
         [NonSerialized]
         public Socket Socket;
         [NonSerialized]
@@ -389,6 +424,6 @@ namespace LogInForm
         [NonSerialized]
         public byte[] buffer = new byte[1024];
 
-        public string msg; 
+        public string msg;
     }
 }

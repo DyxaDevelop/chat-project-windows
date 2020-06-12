@@ -39,6 +39,12 @@ namespace LogInForm
 
         }
 
+        /// <summary>
+        /// Checks if the username and passwords are empty or not,
+        /// validates password's lenth;
+        /// if all requirements are met, starts the client, sending a request to the server;
+        /// </summary>
+
         private void materialRaisedButton1_Click(object sender, EventArgs e)
         {
             userNickname = InputNickname.Text;
@@ -76,6 +82,9 @@ namespace LogInForm
 
         }
 
+        /// <summary>
+        /// Opens the Register Form, creating a new instance of it;
+        /// </summary>
         private void materialLabel1_Click_2(object sender, EventArgs e)
         {
             RegisterForm form2 = new RegisterForm();
@@ -89,12 +98,23 @@ namespace LogInForm
             MessageBox.Show(message);
         }
 
+
+        /// <summary>
+        /// Opens the Chat Form as a user, creating a new instance of it;
+        /// </summary>
+
+
         public void logIntoChatUser()
         {
             Messager chatForm = new Messager("null", userNickname, false);
             chatForm.Show();
             Hide();
         }
+
+
+        /// <summary>
+        /// Opens the Chat Form as an admin, creating a new instance of it;
+        /// </summary>
 
         public void logIntoChatAdmin()
         {
@@ -103,29 +123,5 @@ namespace LogInForm
             Hide();
         }
 
-    }
-
-    public class ValidJSONClass
-    {
-        public bool isValidJSON(String json)
-        {
-            json = json.Trim();
-
-            try
-            {
-                var obj = JToken.Parse(json);
-                return true;
-            }
-            catch (JsonReaderException e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return false;
-            }
-        }
     }
 }
