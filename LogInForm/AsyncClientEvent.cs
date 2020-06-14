@@ -53,18 +53,44 @@ namespace LogInForm
         /// requests to the server, passing the necessary data to them
         /// </summary>
 
+
+        /**
+         * This method is used to start the client in order to send a login request to the sever;
+         * @param userName - username for logging in
+         * @param userPassword - password for logging in
+         * @param eventName - eventName, that will be equal to Login, for the server to recognise the response
+         * @param userID - ID of the user
+         * @param form1 - the Login form, where the function is called from, to call methods on it later
+         */
         public void StartClientWithLoginForm(String userName, String userPassword, String eventName, string userID, LoginForm form1)
         {
             currentLoginForm = form1;
             StartClient(userName, userPassword, eventName, userID);
         }
 
+        /**
+         * This method is used to start the client in order to send a register request to the sever;
+         * @param userName - username for registration
+         * @param userPassword - password for registration
+         * @param eventName - eventName, that will be equal to Register, for the server to recognise the response
+         * @param userID - ID of the user
+         * @param form2 - the Register form, where the function is called from, to call methods on it later
+         */
         public void StartClientWithRegisterForm(String userName, String userPassword, String eventName, string userID, RegisterForm form2)
         {
             currentRegisterForm = form2;
             StartClient(userName, userPassword, eventName, userID);
         }
 
+        /**
+         * This method is used to start the client in order to send a request to the server to send or get messages from the database
+         * @param userName - username of current user
+         * @param userPassword - password of current user
+         * @param eventName - eventName, that will be equal to Send_Message or Get_Messages, for the server to recognise the response
+         * @param userID - ID of the user
+         * @param chatForm - the current Chat form, where the function is called from, to call methods on it later
+         * @param userMessage - the message, that the user wants to send to the chat
+         */
         public void StartClientWithChatForm(String userName, String userPassword, String eventName, string userID, Messager chatForm, String userMessage)
         {
             currentChatForm = chatForm;
@@ -72,17 +98,37 @@ namespace LogInForm
             StartClient(userName, userPassword, eventName, userID);
         }
 
+        /**
+         * This method is used to start the client in order to send a request to the server to delete a message from the database
+         * @param userName - username of current user
+         * @param messageTimeStamp - the time of the message being sent
+         * @param eventName - eventName, that will be equal to Delete_Message, for the server to recognise the response
+         * @param chatForm - the current Chat form, where the function is called from, to call methods on it later
+         */
         public void StartClientWithChatFormDeleteMessage(String userName, String messageTimeStamp, String eventName, Messager chatForm)
         {
             currentChatForm = chatForm;
             extraData = messageTimeStamp;
             StartClient(userName, "null", eventName, "null");
         }
+
+        /**
+         * This method is used to start the client in order to disconnect from the server
+         * @param eventName - eventName, that will be equal to Disconnect, for the server to recognise the response
+         * @param chatForm - the current Chat form, where the function is called from, to call methods on it later
+         */
         public void StartClientWithChatFormDisconnect(String eventName, Messager chatForm)
         {
             StartClient("null", "null", eventName, "null");
         }
 
+        /**
+         * Starts the client, in order to send requests and receive responses to and from the server
+         * @param userName - username of the current user
+         * @param userPassword - password of the current user
+         * @param eventName - eventName, that's used to recognise the request
+         * @param chatForm - the current Chat form, where the function is called from, to call methods on it later
+         */
         public void StartClient(String userName, String userPassword, String eventName, string userID)
         {
 
@@ -203,11 +249,11 @@ namespace LogInForm
             }
         }
 
-
-        /// <summary>
-        /// Receive and ReceiveCallBack are used to receive, decode, and handle the data
-        /// received from the server as a response to the request from the client;
-        /// </summary>
+        /**
+         * Receive and ReceiveCallBack are used to receive, decode, and handle the data
+         * received from the server as a response to the request from the client;
+         * @param client - the current socket, used to send requests
+         */
 
         private static void Receive(Socket client)
         {
@@ -286,12 +332,16 @@ namespace LogInForm
             }
         }
 
-
-        /// <summary>
-        /// Sends the data to the server, encoding it into ASCII,
-        /// and encapsulating into the needed class, and that depends
-        /// on the type of request, that is being sent to the server
-        /// </summary>
+        /**
+         * Sends the data to the server, encoding it into ASCII,
+         * and encapsulating into the needed class, and that depends
+         * on the type of request, that is being sent to the server
+         * @param client - the current socket of the client,
+         * @param eventName - the name of the event, so the server can recognise the request
+         * @param userName - current username of the user
+         * @param userPassword - password of current user
+         * @param userID - id of the user
+         */
 
         private static void Send(Socket client, String eventName, String userName, String userPassword, String userID)
         {
@@ -359,10 +409,12 @@ namespace LogInForm
         }
 
 
-        /// <summary>
-        /// Tests and displays the actual amount of
-        /// data (bytes) that was sent to the server;
-        /// </summabry>
+
+        /**
+         * Tests and displays the actual amount of
+         * data (bytes) that was sent to the server;
+         * @param ar - the state of the request that was sent to the server
+         */
 
         private static void SendCallback(IAsyncResult ar)
         {
@@ -384,11 +436,12 @@ namespace LogInForm
             }
         }
 
-
-        /// <summary>
-        /// Determines, whether the received string
-        /// is a valid, readable JSON, that we will be able to read data from;
-        /// </summary>
+        /**
+         * Determines, whether the received string
+         * is a valid, readable JSON, that we will be able to read data from;
+         * @param json - a string, that is being checked, whether it is a valid json, or just a string
+         * @return Returns a true or false value, depending on the result
+         */
 
         public static bool isValidJSON(String json)
         {

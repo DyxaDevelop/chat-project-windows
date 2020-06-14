@@ -85,6 +85,10 @@ namespace LogInForm
 
         }
 
+        /**
+         * Shows the message box with received information
+         * @param message - a string message, that needs to be displayed
+         */
         public void showMessageBox(String message)
         {
 

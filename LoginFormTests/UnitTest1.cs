@@ -12,7 +12,7 @@ namespace LoginFormTests
             string jsonData = @"{ 
             'FirstName':'Jignesh',  
             'LastName':'Trivedi'  
-            }";
+            ";
 
             bool responseExpected = true;
 

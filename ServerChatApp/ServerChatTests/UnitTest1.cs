@@ -54,6 +54,7 @@ namespace ServerChatTests
             string responseExpected = "Admin: 2 Messages; Nazar: 1 Messages; Andrii: 1 Messages; ";
 
             string actualResponse = AsynchronousSocketListener.displayAllUserMessageCount(listOfMessages);
+
             Assert.AreEqual(responseExpected, actualResponse, "Error");
         }
     }

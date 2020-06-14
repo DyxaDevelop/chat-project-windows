@@ -71,13 +71,13 @@ namespace LogInForm
 
         }
 
-
-        /// <summary>
-        /// Populates the chat with messages, validating the type of the message
-        /// if the userName is admin, makes the background of the message green;
-        /// if the userName is different from the current user - makes it light grey;
-        /// if the userName is current's user userName, makes no changes to the layout;
-        /// </summary>
+        /**
+         * Populates the chat with messages, validating the type of the message
+         * if the userName is admin, makes the background of the message green;
+         * if the userName is different from the current user - makes it light grey;
+         * if the userName is current's user userName, makes no changes to the layout;
+         * @param chatMessages - the list of messages, receved from the server, that will help populate the form, providing objects
+         */
 
         public void populateChat(List<ChatMessage> chatMessages)
         {
@@ -135,6 +135,14 @@ namespace LogInForm
 
 
         }
+
+        /**
+         * Actually adds the objects into the FlowLayoutPanel
+         * @param currentChatMessageObject - the object, that needs to be added to the list (to the FlowLayoutPanel)
+         * @param currentItemCount - the amount of messages currently there
+         * @param listSize - size of the list with messages
+         * @param isAdmin - a boolean, that has the value true or false, to indicate, whether the user is a superUser or not
+         */
 
         private void UpdateFlowLayoutPanel(Object currentChatMessageObject, int currentItemCount, int listSize, bool isAdmin)
         {
@@ -202,6 +210,11 @@ namespace LogInForm
 
             asyncClientEvent.StartClientWithChatForm("null", "null", "Get_Messages", "null", currentForm, "null");
         }
+
+        /**
+         * Shows the message box with received information
+         * @param message - a string message, that needs to be displayed
+         */
         public void showMessageBox(String message)
         {
             MessageBox.Show(message);

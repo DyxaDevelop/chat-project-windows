@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 namespace LogInForm
 {
 
+    /// <summary>
+    /// Data of the user - 
+    /// eventname for passing the data;
+    /// userID - his unique ID;
+    /// userName - username of the user sending it;
+    /// userPassword - password of the user;
+    /// </summary>
+
     [Serializable]
     internal class UserData
     {
